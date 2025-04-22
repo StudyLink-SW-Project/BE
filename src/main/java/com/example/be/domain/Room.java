@@ -27,6 +27,10 @@ public class Room {
 
     private String password;
 
+    private String roomImage;
+
+    private String maxParticipants;
+
     private Long participantCount;
 
     private LocalDateTime createDate;
