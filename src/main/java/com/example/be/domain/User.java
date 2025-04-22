@@ -3,9 +3,6 @@ package com.example.be.domain;
 import com.example.be.domain.enums.LoginType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -25,13 +22,15 @@ public class User {
     @Column(nullable = false)
     private String name;
 
+    private UUID userId;
+
+
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
-    private LoginType loginType;
+    private String provider;
 
     private String providerId;
 
