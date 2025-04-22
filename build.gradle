@@ -32,6 +32,24 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Security (소셜 로그인 관련 의존성)
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // Jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.2'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.2'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.2'
+
+    // OAuth 2.0
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Spring Boot DevTools (개발 시 편의성 제공)
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+
 }
 
 tasks.named('test') {
