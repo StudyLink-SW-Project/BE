@@ -18,4 +18,15 @@ public class UserDTO {
         private LoginType loginType;
         private String email;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SingUpRequestDto {
+        private String email;
+        private String name;
+        private String password;
+    }
+
 }
