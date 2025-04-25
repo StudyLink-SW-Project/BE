@@ -29,4 +29,12 @@ public class UserDTO {
         private String password;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoginRequestDto {
+        private String email;
+        private String password;
+    }
 }
