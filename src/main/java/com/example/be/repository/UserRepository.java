@@ -7,10 +7,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    User findNameById(Long id);
-
     @Query("SELECT u FROM User u WHERE u.userId = :userId")
     Optional<User> findByUserId(UUID userId);
 
     User findByProviderId(String providerId);
+
+    boolean existsByEmail(String email);
 }
