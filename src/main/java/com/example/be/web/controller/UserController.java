@@ -1,7 +1,6 @@
 package com.example.be.web.controller;
 
 import com.example.be.apiPayload.ApiResponse;
-import com.example.be.apiPayload.code.status.SuccessStatus;
 import com.example.be.service.UserServiceImpl;
 import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.UserDTO;
@@ -18,7 +17,7 @@ public class UserController {
     private final UserServiceImpl userService;
 
     @Hidden
-    @GetMapping("/login")
+    @GetMapping("/socialLogin")
     public ResponseEntity<?> handleLoginRedirect(
             @RequestParam String name,
             @RequestParam String access_token,
@@ -29,8 +28,16 @@ public class UserController {
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입 API")
-    public ApiResponse<CommonDTO.IsSuccessDTO> signup(@RequestBody UserDTO.SingUpRequestDto requestDto) {
+    public ApiResponse<CommonDTO.IsSuccessDTO> signup(@RequestBody UserDTO.SingUpRequestDto request) {
 
-        return ApiResponse.onSuccess(userService.signUp(requestDto));
+        return ApiResponse.onSuccess(userService.signUp(request));
     }
+
+    @PostMapping("/login")
+    @Operation(summary = "로그인 API")
+    public ApiResponse<CommonDTO.IsSuccessDTO> login(@RequestBody UserDTO.LoginRequestDto request) {
+
+        return ApiResponse.onSuccess(userService.login(request));
+    }
+
 }
