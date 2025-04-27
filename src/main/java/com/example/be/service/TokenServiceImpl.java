@@ -22,6 +22,8 @@ public class TokenServiceImpl{
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtilServiceImpl jwtUtil;
 
+
+    //액세스 토큰 재발급
     public TokenResponseDTO reissueAccessToken(String authorizationHeader) {
         String refreshToken = jwtUtil.getTokenFromHeader(authorizationHeader);
         String userId = jwtUtil.getUserIdFromToken(refreshToken);
