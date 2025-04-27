@@ -8,8 +8,10 @@ import com.example.be.repository.RefreshTokenRepository;
 import com.example.be.repository.UserRepository;
 import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.UserDTO;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityRole;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
@@ -54,7 +57,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
 
     }
 
-    public CommonDTO.IsSuccessDTO login(UserDTO.LoginRequestDto request) {
+    public CommonDTO.IsSuccessDTO login(UserDTO.LoginRequestDto request, HttpServletResponse response) {
         //db에 아이디랑 비밀번호가 일치하는지 조회
         // 일치한다면 토큰 발급 후 response
 
@@ -64,7 +67,9 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         if (!user.getPassword().equals(request.getPassword()))
             throw new UserHandler(ErrorStatus._NOT_CORRECT_PASSWORD);
 
-        // RefreshToken 발급
+        refreshTokenRepository.deleteByUserId(user.getUserId());
+
+        // RefreshToken 재발급
         String refreshToken = jwtUtil.generateRefreshToken(user.getUserId(), REFRESH_TOKEN_EXPIRATION_TIME);
 
         RefreshToken newRefreshToken = RefreshToken.builder()
@@ -76,6 +81,23 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
 
         // AccessToken 발급
         String accessToken = jwtUtil.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
+
+
+        // 쿠키에 액세스 토큰 추가
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);  // JavaScript에서 접근 불가능하게 설정
+        accessTokenCookie.setSecure(false);    // HTTPS에서만 전송되도록 설정, https 적용 후 true로 설정 예정
+        accessTokenCookie.setPath("/");       // 모든 경로에서 쿠키 접근 가능
+        accessTokenCookie.setMaxAge((int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000));  // 밀리초를 초로 변환
+        response.addCookie(accessTokenCookie);
+
+        // 쿠키에 리프레시 토큰 추가
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(false);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge((int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000));
+        response.addCookie(refreshTokenCookie);
 
         return CommonDTO.IsSuccessDTO.builder()
                 .isSuccess(true)

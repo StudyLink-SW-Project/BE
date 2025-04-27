@@ -9,6 +9,7 @@ import com.example.be.domain.User;
 import com.example.be.repository.RefreshTokenRepository;
 import com.example.be.repository.UserRepository;
 import com.example.be.service.JwtUtilServiceImpl;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -110,9 +111,26 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // 액세스 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
 
-        // 이름, 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
-        String encodedName = URLEncoder.encode(name, "UTF-8");
-        String redirectUri = String.format(REDIRECT_URI, encodedName, accessToken, refreshToken);
-        getRedirectStrategy().sendRedirect(request, response, redirectUri);
+        // 쿠키에 액세스 토큰 추가
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);  // JavaScript에서 접근 불가능하게 설정
+        accessTokenCookie.setSecure(false);    // HTTPS에서만 전송되도록 설정, https 적용 후 true로 설정 예정
+        accessTokenCookie.setPath("/");       // 모든 경로에서 쿠키 접근 가능
+        accessTokenCookie.setMaxAge((int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000));  // 밀리초를 초로 변환
+        response.addCookie(accessTokenCookie);
+
+
+        // 쿠키에 리프레시 토큰 추가
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(false);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge((int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000));
+        response.addCookie(refreshTokenCookie);
+
+//        // 이름, 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
+//        String encodedName = URLEncoder.encode(name, "UTF-8");
+//        String redirectUri = String.format(REDIRECT_URI, encodedName, accessToken, refreshToken);
+//        getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }
 }
