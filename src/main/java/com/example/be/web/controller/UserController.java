@@ -6,6 +6,7 @@ import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +36,9 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인 API")
-    public ApiResponse<CommonDTO.IsSuccessDTO> login(@RequestBody UserDTO.LoginRequestDto request) {
+    public ApiResponse<CommonDTO.IsSuccessDTO> login(@RequestBody UserDTO.LoginRequestDto request, HttpServletResponse response) {
 
-        return ApiResponse.onSuccess(userService.login(request));
+        return ApiResponse.onSuccess(userService.login(request, response));
     }
 
 }
