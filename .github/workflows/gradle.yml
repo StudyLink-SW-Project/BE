@@ -157,10 +157,10 @@ jobs:
             EOL
             
             # Pull the new image
-            sudo docker pull lehojun/mayi:${{ env.TAG }}
+            sudo docker pull lehojun/studylink:${{ env.TAG }}
             
             # Update docker-compose.yml to use the new tag
-            sed -i 's|lehojun/mayi:.*|lehojun/mayi:${{ env.TAG }}|g' docker-compose.yml
+            sed -i 's|lehojun/studylink:.*|lehojun/studylink:${{ env.TAG }}|g' docker-compose.yml
             
             # Deploy with no downtime
             sudo docker-compose up -d --no-deps --force-recreate app
