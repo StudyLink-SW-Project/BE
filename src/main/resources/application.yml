@@ -63,3 +63,12 @@ jwt:
     expiration-time: 3600000 #액세스 토큰의 유효기간
   refresh-token:
     expiration-time: 604800000 #리프레쉬 토큰의 유효기간
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
