@@ -193,7 +193,7 @@ jobs:
       - name: Health Check
         run: |
           # Wait for deployment to stabilize
-          sleep 30
+          sleep 60
           
           # Attempt to call health endpoint (replace with your actual health endpoint)
           HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_HOST }}:8080/actuator/health || echo "failed")
