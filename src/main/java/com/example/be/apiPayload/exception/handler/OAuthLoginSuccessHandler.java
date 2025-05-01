@@ -30,8 +30,8 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    @Value("${jwt.redirect}")
-    private String REDIRECT_URI; // 프론트엔드로 Jwt 토큰을 리다이렉트할 URI
+//    @Value("${jwt.redirect}")
+//    private String REDIRECT_URI; // 프론트엔드로 Jwt 토큰을 리다이렉트할 URI
 
     @Value("${jwt.access-token.expiration-time}")
     private long ACCESS_TOKEN_EXPIRATION_TIME; // 액세스 토큰 유효기간
