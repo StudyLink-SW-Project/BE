@@ -9,7 +9,7 @@ on:
 
 
 jobs:
-  # build-and-test: 코드 빌드 및 테스트
+  # build-and-test: 코드 빌드
   build-and-test:
     runs-on: ubuntu-latest
 
