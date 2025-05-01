@@ -31,7 +31,7 @@ public class SwaggerConfig {
         if (isLocalEnvironment()) {
             servers.add(new Server().url("http://localhost:8080").description("Local Server"));
         } else {
-            servers.add(new Server().url("https://studylink.store").description("Production API Server"));
+            servers.add(new Server().url("https://api.studylink.store").description("Production API Server"));
         }
 
         return new OpenAPI()
