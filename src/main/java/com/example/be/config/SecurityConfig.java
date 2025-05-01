@@ -1,7 +1,5 @@
 package com.example.be.config;
 
-
-
 import com.example.be.apiPayload.exception.handler.OAuthLoginFailureHandler;
 import com.example.be.apiPayload.exception.handler.OAuthLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +31,9 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "https://studylink.store",  // 메인 도메인
-                "https://api.studylink.store",  // API 서브도메인 (필요시)
+                "https://studylink.store",       // 프론트엔드 도메인
+                "https://api.studylink.store",   // 백엔드 API 도메인
+                "https://swagger.studylink.store", // Swagger UI 도메인 (필요시)
                 "http://localhost:8080",
                 "http://localhost:3000"
         ));
@@ -42,6 +41,7 @@ public class SecurityConfig {
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L); // 프리플라이트 요청 캐싱 시간 (1시간)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -56,6 +56,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
                         authorize
+                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Swagger UI 접근 허용
                                 .requestMatchers("/**").permitAll()
                 )
 
@@ -67,7 +68,4 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
-
-
-
 }
