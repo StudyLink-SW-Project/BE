@@ -197,7 +197,7 @@ jobs:
           sleep 30
           
           # Attempt to call health endpoint (replace with your actual health endpoint)
-          HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_HOST }}:8081/actuator/health || echo "failed")
+          HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.EC2_HOST }}:8081/actuator/health || echo "failed")
           
           if [ "$HEALTH_STATUS" == "200" ]; then
             echo "Application is healthy!"
