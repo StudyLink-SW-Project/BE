@@ -163,11 +163,12 @@ jobs:
             sed -i 's|lehojun/studylink:.*|lehojun/studylink:${{ env.TAG }}|g' docker-compose.yml
             
             # Deploy with no downtime
-            sudo docker-compose up -d --no-deps --force-recreate app
-            
-            # Check if container is running properly
+            sudo docker-compose up -d --no-deps --force-recreate studylink-app
+  
+
+  # Check if container is running properly
             sleep 10
-            if [ "$(sudo docker ps -q -f name=app)" ]; then
+            if [ "$(sudo docker ps -q -f name=studylink-app)" ]; then
               echo "Deployment successful"
               # Tag successful deployment in a file for reference
               echo "${{ env.TAG }}" > /home/ubuntu/last_successful_deploy
