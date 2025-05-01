@@ -48,5 +48,4 @@ public class SwaggerConfig {
         String env = System.getProperty("spring.profiles.active", "local");
         return "local".equals(env);
     }
-
 }
