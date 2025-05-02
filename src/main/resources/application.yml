@@ -76,3 +76,4 @@ management:
 server:
   protocol: https
   host: 8080
+  port: 8081
