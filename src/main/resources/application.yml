@@ -74,7 +74,7 @@ management:
       show-details: always
 
 server:
-  protocol: https
+  protocol: http
   host: api.studylink.store
   port: 8081
 
