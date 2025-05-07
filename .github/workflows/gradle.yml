@@ -154,8 +154,8 @@ jobs:
             KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
             KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY}}
-            LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET}}
+            LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }}
+            LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}
             EOL
             
             # Pull the new image
