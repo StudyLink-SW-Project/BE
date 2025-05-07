@@ -15,6 +15,7 @@ import livekit.LivekitWebhook.WebhookEvent;
 
 @CrossOrigin(origins = "*")
 @RestController
+@RequestMapping("/api/v1/video")
 public class OpenviduController {
 
     @Value("${livekit.api.key}")
