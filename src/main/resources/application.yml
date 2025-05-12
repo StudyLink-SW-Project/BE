@@ -75,6 +75,7 @@ management:
 
 server:
   protocol: http
+  host: studylink.store
   port: 8081
 
 livekit:
