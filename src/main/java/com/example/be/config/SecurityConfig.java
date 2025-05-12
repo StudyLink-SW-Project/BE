@@ -35,7 +35,7 @@ public class SecurityConfig {
                 "https://api.studylink.store",   // 백엔드 API 도메인
                 "https://swagger.studylink.store", // Swagger UI 도메인 (필요시)
                 "http://localhost:8080",
-                "http://localhost:3000"
+                "http://localhost:5173"
         ));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
