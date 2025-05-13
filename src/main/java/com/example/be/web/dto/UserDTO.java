@@ -15,7 +15,7 @@ public class UserDTO {
     public static class UserResponseDto {
         private Long userId;
         private String userName;
-        private LoginType loginType;
+        private String loginType;
         private String email;
     }
 
