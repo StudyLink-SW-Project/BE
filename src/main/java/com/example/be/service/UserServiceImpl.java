@@ -4,6 +4,7 @@ import com.example.be.apiPayload.code.status.ErrorStatus;
 import com.example.be.apiPayload.exception.handler.UserHandler;
 import com.example.be.domain.RefreshToken;
 import com.example.be.domain.User;
+import com.example.be.domain.enums.LoginType;
 import com.example.be.repository.RefreshTokenRepository;
 import com.example.be.repository.UserRepository;
 import com.example.be.web.dto.CommonDTO;
