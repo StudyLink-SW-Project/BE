@@ -12,6 +12,8 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -107,5 +109,18 @@ public class JwtUtilServiceImpl {
             log.warn("유효하지 않은 토큰입니다.");
             throw new TokenException(TokenErrorResult.INVALID_TOKEN);
         }
+
     }
+    public String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null) {
+            for(Cookie cookie : cookies) {
+                if(cookie.getName().equals(cookieName)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
+    }
+
 }
