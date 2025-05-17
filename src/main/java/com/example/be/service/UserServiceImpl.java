@@ -10,6 +10,7 @@ import com.example.be.repository.UserRepository;
 import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.UserDTO;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -104,4 +105,48 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
                 .isSuccess(true)
                 .build();
     }
+
+    public UserDTO.UserResponseDto getUserInfo(String accessToken) {
+        // 토큰이 없는 경우 처리
+        if(accessToken == null) {
+            throw new UserHandler(ErrorStatus._NOT_FOUND_USER);
+        }
+
+        // 토큰에서 사용자 ID 추출
+        String userId = jwtUtil.getUserIdFromToken(accessToken);
+
+        // 사용자 정보 조회
+        User user = userRepository.findByUserId(UUID.fromString(userId))
+                .orElseThrow(() -> new UserHandler(ErrorStatus._NOT_FOUND_USER));
+
+        // UserResponseDto로 변환하여 반환
+        return UserDTO.UserResponseDto.builder()
+                .userId(user.getId())
+                .userName(user.getName())
+                .email(user.getEmail())
+                .loginType(user.getProvider())
+                .build();
+    }
+    public CommonDTO.IsSuccessDTO logout(HttpServletResponse response, HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if(cookies == null) {
+            throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
+        }
+
+        Cookie access = new Cookie("accessToken", null);
+        Cookie refresh = new Cookie("refreshToken", null);
+
+        access.setPath("/");
+        refresh.setPath("/");
+
+        access.setMaxAge(0);
+        refresh.setMaxAge(0);
+
+        response.addCookie(access);
+        response.addCookie(refresh);
+
+        return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
+    }
+
 }
