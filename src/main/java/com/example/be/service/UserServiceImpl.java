@@ -127,6 +127,8 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
                 .loginType(user.getProvider())
                 .build();
     }
+
+
     public CommonDTO.IsSuccessDTO logout(HttpServletResponse response, HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
