@@ -19,7 +19,7 @@ import java.util.List;
 @Configuration
 public class SwaggerConfig extends WebMvcConfigurationSupport {
 
-    @Value("${server.protocol}") private String protocol;
+//    @Value("${server.protocol}") private String protocol;
 //    @Value("${server.host}") private String host;
 
 
@@ -43,7 +43,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                         .version("1.0")
                         .description("Study Link 프로젝트 API 문서"))
                 .addServersItem(new Server().url("/"))
-                .addServersItem(new Server().url(protocol + "://" + "api.studylink.store").description("https 호스트"))
+                .addServersItem(new Server().url("8080" + "://" + "api.studylink.store").description("https 호스트"))
                 .components(new Components().addSecuritySchemes("Bearer Token", apiKey))
                 .addSecurityItem(securityRequirement);
     }
