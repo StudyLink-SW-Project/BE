@@ -73,10 +73,10 @@ management:
     health:
       show-details: always
 
-server:
-  protocol: http
+#server:
+#  protocol: http
 #  host: api.studylink.store
-  port: 8080
+#  port: 8080
 
 livekit:
   api:
