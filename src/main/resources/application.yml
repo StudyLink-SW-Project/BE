@@ -75,7 +75,7 @@ management:
 
 server:
   protocol: http
-  host: api.studylink.store
+#  host: api.studylink.store
   port: 8080
 
 livekit:
