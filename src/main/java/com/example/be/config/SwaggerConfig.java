@@ -43,7 +43,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                         .version("1.0")
                         .description("Study Link 프로젝트 API 문서"))
                 .addServersItem(new Server().url("/"))
-                .addServersItem(new Server().url("8080" + "://" + "api.studylink.store").description("https 호스트"))
+                .addServersItem(new Server().url("host" + "://" + "api.studylink.store").description("https 호스트"))
                 .components(new Components().addSecuritySchemes("Bearer Token", apiKey))
                 .addSecurityItem(securityRequirement);
     }

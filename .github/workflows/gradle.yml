@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-
-
 jobs:
   # build-and-test: 코드 빌드
   build-and-test:
@@ -37,8 +35,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-#      - name: Run Tests
-#        run: ./gradlew test
+      #      - name: Run Tests
+      #        run: ./gradlew test
 
       - name: Build with Gradle
         run: ./gradlew clean build -x test # test skip
@@ -50,8 +48,8 @@ jobs:
           path: build/libs/*.jar
           retention-days: 3
 
-  deploy:
-    # deploy: Docker 이미지 생성/배포 및 EC2 배포
+  build-and-push-image:
+    # Docker 이미지 생성 및 DockerHub 배포
     needs: build-and-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -106,104 +104,7 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      - name: Get GitHub IP
-        id: ip
-        uses: haythem/public-ip@v1.2
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Add GitHub IP to AWS
+      - name: Image Build Complete
         run: |
-          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-
-      - name: Save current deployment for rollback
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_PASSWORD }}
-          port: ${{ secrets.EC2_SSH_PORT }}
-          script: |
-            if [ -f /home/ubuntu/docker-compose.yml ]; then
-              cp /home/ubuntu/docker-compose.yml /home/ubuntu/docker-compose.backup.yml
-            fi
-
-      - name: Deploy to AWS EC2
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_PASSWORD }}
-          port: ${{ secrets.EC2_SSH_PORT }}
-          timeout: 120s
-          script: |
-            cd /home/ubuntu
-            cat > .env << EOL
-            SQL_DB_URL=${{ secrets.SQL_DB_URL }}
-            SQL_DB_USERNAME=${{ secrets.SQL_DB_USERNAME }}
-            SQL_DB_PASSWORD=${{ secrets.SQL_DB_PASSWORD }}
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
-            NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
-            KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
-            KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }}
-            LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}
-            EOL
-            
-            # Pull the new image
-            sudo docker pull lehojun/studylink:${{ env.TAG }}
-            
-            # Update docker-compose.yml to use the new tag
-            sed -i 's|lehojun/studylink:.*|lehojun/studylink:${{ env.TAG }}|g' docker-compose.yml
-            
-            # Deploy with no downtime
-            sudo docker-compose up -d --no-deps --force-recreate studylink-app
-  
-
-            # Check if container is running properly
-            sleep 10
-            if [ "$(sudo docker ps -q -f name=studylink-app)" ]; then
-              echo "Deployment successful"
-              # Tag successful deployment in a file for reference
-              echo "${{ env.TAG }}" > /home/ubuntu/last_successful_deploy
-            else
-              echo "Deployment failed, rolling back"
-              if [ -f /home/ubuntu/docker-compose.backup.yml ]; then
-                cp /home/ubuntu/docker-compose.backup.yml /home/ubuntu/docker-compose.yml
-                sudo docker-compose up -d
-              fi
-            fi
-
-      - name: Remove IP from security group
-        if: always()
-        run: |
-          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-
-#  #health-check: 배포 후 애플리케이션 상태 확인
-#  health-check:
-#    needs: deploy
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Health Check
-#        run: |
-#          # Wait for deployment to stabilize
-#          sleep 20
-#
-#          # Attempt to call health endpoint (replace with your actual health endpoint)
-#          HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_HOST }}:8080/actuator/health || echo "failed")
-#
-#          if [ "$HEALTH_STATUS" == "200" ]; then
-#            echo "Application is healthy!"
-#          else
-#            echo "Health check failed with status: $HEALTH_STATUS"
-#            exit 1
-#          fi
+          echo "Image lehojun/studylink:${{ env.TAG }} successfully built and pushed to DockerHub"
+          echo "This image can now be used in the OpenVidu docker-compose.override.yaml file"
