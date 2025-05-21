@@ -36,7 +36,6 @@ public class PostDTO {
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate createDate;
         private int commentCount;
-        private boolean isDone;
     }
 
     @Builder
@@ -53,21 +52,6 @@ public class PostDTO {
         private boolean last;
     }
 
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Schema(description = "댓글 응답 DTO")
-    public static class CommentResponseDTO {
-        private Long id;
-        private String comment;
-        private String userName;
-
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime createDate;
-
-        private Long topParentId;
-    }
 
     @Builder
     @Getter
@@ -83,9 +67,8 @@ public class PostDTO {
         private boolean liked;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createDate;
-        private boolean isDone;
         private int commentCount;
-        private List<CommentResponseDTO> comments;
+        private List<CommentDTO.CommentResponseDTO> comments;
     }
 
     @Builder
