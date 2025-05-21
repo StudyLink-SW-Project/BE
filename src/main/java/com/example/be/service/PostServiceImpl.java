@@ -31,9 +31,11 @@ public class PostServiceImpl {
     private final JwtUtilServiceImpl jwtUtilService;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final PostLikeServiceImpl postLikeService;
 
+
+    //글 작성 메서드
     public CommonDTO.IsSuccessDTO write(PostDTO.postRequestDTO request, HttpServletRequest req) {
-
         String accessToken = jwtUtilService.extractTokenFromCookie(req, "accessToken");
 
         // 토큰이 없는 경우 처리
@@ -63,7 +65,7 @@ public class PostServiceImpl {
 
     public PostDTO.PageResponseDTO getPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Post> postPage = postRepository.findAllWithCommentsOrderByCreateDateDesc(pageable);
+        Page<Post> postPage = postRepository.findAllByOrderByCreateDateDesc(pageable);
 
         List<PostDTO.postResponseDTO> postDtoList = postPage.getContent().stream()
                 .map(post -> PostDTO.postResponseDTO.builder()
@@ -73,8 +75,8 @@ public class PostServiceImpl {
                         .userName(post.getUser().getName())
                         .createDate(post.getCreateDate().toLocalDate())
                         .isDone(post.isDone())
-                        // 댓글 개수 추가
                         .commentCount(post.getComments() != null ? post.getComments().size() : 0)
+                        .likeCount(postLikeService.getPostLikeCount(post))
                         .build())
                 .collect(Collectors.toList());
 
@@ -89,9 +91,28 @@ public class PostServiceImpl {
     }
 
     // 게시글 상세 조회 메서드
-    public PostDTO.PostDetailResponseDTO getPostDetail(Long postId) {
+    public PostDTO.PostDetailResponseDTO getPostDetail(Long postId, HttpServletRequest request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus._NOT_FOUND_POST));
+
+        // 현재 로그인한 사용자 정보 가져오기 (좋아요 여부 확인용)
+        User currentUser = null;
+        boolean isLiked = false;
+
+        try {
+            String accessToken = jwtUtilService.extractTokenFromCookie(request, "accessToken");
+            if (accessToken != null) {
+                String userId = jwtUtilService.getUserIdFromToken(accessToken);
+                currentUser = userRepository.findByUserId(UUID.fromString(userId)).orElse(null);
+
+                // 현재 사용자가 이 게시글에 좋아요를 눌렀는지 확인
+                if (currentUser != null) {
+                    isLiked = postLikeService.isPostLikedByUser(post, currentUser);
+                }
+            }
+        } catch (Exception e) {
+            // 비로그인 사용자도 게시글을 볼 수 있도록 예외를 무시하고 진행
+        }
 
         // 댓글 목록 변환
         List<PostDTO.CommentResponseDTO> commentDtoList = post.getComments().stream()
@@ -104,6 +125,9 @@ public class PostServiceImpl {
                         .build())
                 .collect(Collectors.toList());
 
+        // 좋아요 수 조회
+        long likeCount = postLikeService.getPostLikeCount(post);
+
         // 게시글 상세 정보 변환
         return PostDTO.PostDetailResponseDTO.builder()
                 .id(post.getId())
@@ -114,6 +138,9 @@ public class PostServiceImpl {
                 .isDone(post.isDone())
                 .commentCount(commentDtoList.size())
                 .comments(commentDtoList)
+                // 좋아요 정보 추가
+                .likeCount(likeCount)
+                .liked(isLiked)
                 .build();
     }
 }

@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
     // PostRepository에 추가
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.comments ORDER BY p.createDate DESC")
-    Page<Post> findAllWithCommentsOrderByCreateDateDesc(Pageable pageable);
+    Page<Post> findAllByOrderByCreateDateDesc(Pageable pageable);
 
     // ID로 게시글 조회 (댓글 포함)
     @EntityGraph(attributePaths = {"comments", "comments.user", "user"})

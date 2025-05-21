@@ -19,8 +19,8 @@ public class PostDTO {
     @AllArgsConstructor
 
     public static class postRequestDTO{
-        String title;
-        String content;
+        private String title;
+        private String content;
     }
 
     @Builder
@@ -28,14 +28,15 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class postResponseDTO {
-        Long id;
-        String title;
-        String content;
-        String userName;
+        private Long id;
+        private String title;
+        private String content;
+        private String userName;
+        private long likeCount;
         @JsonFormat(pattern = "yyyy-MM-dd")
-        LocalDate createDate;
-        int commentCount;
-        boolean isDone;
+        private LocalDate createDate;
+        private int commentCount;
+        private boolean isDone;
     }
 
     @Builder
@@ -78,14 +79,24 @@ public class PostDTO {
         private String title;
         private String content;
         private String userName;
-
+        private long likeCount;
+        private boolean liked;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createDate;
-
         private boolean isDone;
         private int commentCount;
         private List<CommentResponseDTO> comments;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "게시글 좋아요 응답 DTO")
+    public static class PostLikeResponseDTO {
+        private Long postId;
+        private boolean liked;
+        private long likeCount;
+    }
 
 }
