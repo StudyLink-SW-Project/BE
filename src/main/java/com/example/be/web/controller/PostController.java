@@ -11,9 +11,12 @@ import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.PostDTO;
 import com.example.be.web.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/post")
@@ -28,5 +31,13 @@ public class PostController {
 
         return ApiResponse.onSuccess(postService.write(request, req));
     }
+
+    @GetMapping("/list")
+    @Operation(summary = "게시글 목록 조회 API (페이지네이션)", description = "15개씩 페이지네이션하여 게시글 목록을 조회합니다.")
+    public ApiResponse<PostDTO.PageResponseDTO> getPosts(
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page) {
+        return ApiResponse.onSuccess(postService.getPosts(page, 4)); // 4개씩 페이지네이션
+    }
+
 
 }
