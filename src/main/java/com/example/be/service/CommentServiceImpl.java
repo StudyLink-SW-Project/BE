@@ -1,6 +1,7 @@
 package com.example.be.service;
 
 import com.example.be.apiPayload.code.status.ErrorStatus;
+import com.example.be.apiPayload.exception.handler.CommentHandler;
 import com.example.be.apiPayload.exception.handler.UserHandler;
 import com.example.be.domain.Comment;
 import com.example.be.domain.Post;
@@ -51,7 +52,7 @@ public class CommentServiceImpl {
         // 대댓글인 경우 상위 댓글 설정
         if (requestDTO.getParentCommentId() != null) {
             Comment parentComment = commentRepository.findById(requestDTO.getParentCommentId())
-                    .orElseThrow(() -> new RuntimeException("상위 댓글을 찾을 수 없습니다."));
+                    .orElseThrow(() -> new CommentHandler(ErrorStatus._NOT_FOUND_COMMENT));
 
             if (parentComment.getTopParent() != null) {
                 comment.setTopParent(parentComment.getTopParent());
