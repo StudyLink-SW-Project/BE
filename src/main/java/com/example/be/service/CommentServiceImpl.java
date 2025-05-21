@@ -28,16 +28,22 @@ public class CommentServiceImpl {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
+    private User getUserFromRequest(HttpServletRequest request) {
+        try {
+            String accessToken = jwtUtilService.extractTokenFromCookie(request, "accessToken");
+            if (accessToken != null) {
+                String userId = jwtUtilService.getUserIdFromToken(accessToken);
+                return userRepository.findByUserId(UUID.fromString(userId)).orElse(null);
+            }
+        } catch (Exception e) {
+            throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
+        }
+        return null;
+    }
+
     @Transactional
     public CommonDTO.IsSuccessDTO createComment(CommentDTO.CommentRequestDTO requestDTO, HttpServletRequest request) {
-        String accessToken = jwtUtilService.extractTokenFromCookie(request, "accessToken");
-        if (accessToken == null) {
-            throw new UserHandler(ErrorStatus._NOT_FOUND_USER);
-        }
-
-        String userId = jwtUtilService.getUserIdFromToken(accessToken);
-        User user = userRepository.findByUserId(UUID.fromString(userId))
-                .orElseThrow(() -> new UserHandler(ErrorStatus._NOT_FOUND_USER));
+        User user= getUserFromRequest(request);
 
         Post post = postRepository.findById(requestDTO.getPostId())
                 .orElseThrow(() -> new UserHandler(ErrorStatus._NOT_FOUND_POST));
