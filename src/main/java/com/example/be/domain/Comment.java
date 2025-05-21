@@ -39,4 +39,7 @@ public class Comment {
 
     @OneToMany(mappedBy = "topParent", cascade = CascadeType.ALL)
     private List<Comment> children = new ArrayList<>(); // 직계 자식
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentLike> likes = new ArrayList<>();
 }

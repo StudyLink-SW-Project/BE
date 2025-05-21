@@ -36,7 +36,7 @@ public class PostController {
     }
 
     @GetMapping("/list")
-    @Operation(summary = "게시글 목록 조회 API (페이지네이션)", description = "15개씩 페이지네이션하여 게시글 목록을 조회합니다.")
+    @Operation(summary = "게시글 목록 조회 API (페이지네이션)", description = "4개씩 페이지네이션하여 게시글 목록을 조회합니다.")
     public ApiResponse<PostDTO.PageResponseDTO> getPosts(
             @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page) {
         return ApiResponse.onSuccess(postService.getPosts(page, 4)); // 4개씩 페이지네이션

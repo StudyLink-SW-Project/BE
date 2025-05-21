@@ -74,7 +74,6 @@ public class JwtUtilServiceImpl {
                     .parseSignedClaims(token)
                     .getPayload()
                     .get("userId", String.class);
-            log.info("유저 id를 반환합니다.");
             return userId;
         } catch (JwtException | IllegalArgumentException e) {
             // 토큰이 유효하지 않은 경우

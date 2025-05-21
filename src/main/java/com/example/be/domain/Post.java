@@ -24,8 +24,6 @@ public class Post {
 
     private String content;
 
-    private boolean isDone = false;
-
     private LocalDateTime createDate;
 
 
