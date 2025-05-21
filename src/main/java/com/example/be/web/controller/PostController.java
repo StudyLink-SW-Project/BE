@@ -6,7 +6,9 @@ import com.example.be.apiPayload.exception.handler.UserHandler;
 import com.example.be.domain.User;
 import com.example.be.repository.UserRepository;
 import com.example.be.service.JwtUtilServiceImpl;
+import com.example.be.service.PostLikeServiceImpl;
 import com.example.be.service.PostServiceImpl;
+import com.example.be.service.UserServiceImpl;
 import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.PostDTO;
 import com.example.be.web.dto.UserDTO;
@@ -24,6 +26,7 @@ import java.util.List;
 public class PostController {
 
     private final PostServiceImpl postService;
+    private final PostLikeServiceImpl postLikeService;
 
     @PostMapping("/write")
     @Operation(summary = "게시글 작성 API")
@@ -42,8 +45,18 @@ public class PostController {
     @GetMapping("/{postId}")
     @Operation(summary = "게시글 상세 조회 API", description = "게시글 ID로 게시글 상세 정보와 댓글 목록을 조회합니다.")
     public ApiResponse<PostDTO.PostDetailResponseDTO> getPostDetail(
-            @Parameter(description = "게시글 ID") @PathVariable Long postId) {
-        return ApiResponse.onSuccess(postService.getPostDetail(postId));
+            @Parameter(description = "게시글 ID") @PathVariable Long postId,
+            HttpServletRequest request) {
+        return ApiResponse.onSuccess(postService.getPostDetail(postId, request));
+    }
+
+    // 좋아요 토글 API 추가
+    @PostMapping("/{postId}/like")
+    @Operation(summary = "게시글 좋아요 토글 API", description = "게시글에 좋아요를 누르거나 취소합니다.")
+    public ApiResponse<PostDTO.PostLikeResponseDTO> togglePostLike(
+            @Parameter(description = "게시글 ID") @PathVariable Long postId,
+            HttpServletRequest request) {
+        return ApiResponse.onSuccess(postLikeService.togglePostLike(postId, request));
     }
 
 }
