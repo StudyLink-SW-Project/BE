@@ -61,7 +61,6 @@ public class PostServiceImpl {
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
 
-    // 페이지네이션을 활용한 게시글 조회 메서드 추가
     public PostDTO.PageResponseDTO getPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> postPage = postRepository.findAllWithCommentsOrderByCreateDateDesc(pageable);
@@ -86,6 +85,35 @@ public class PostServiceImpl {
                 .totalElements(postPage.getTotalElements())
                 .first(postPage.isFirst())
                 .last(postPage.isLast())
+                .build();
+    }
+
+    // 게시글 상세 조회 메서드
+    public PostDTO.PostDetailResponseDTO getPostDetail(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new UserHandler(ErrorStatus._NOT_FOUND_POST));
+
+        // 댓글 목록 변환
+        List<PostDTO.CommentResponseDTO> commentDtoList = post.getComments().stream()
+                .map(comment -> PostDTO.CommentResponseDTO.builder()
+                        .id(comment.getId())
+                        .comment(comment.getComment())
+                        .userName(comment.getUser().getName())
+                        .createDate(comment.getCreateDate())
+                        .topParentId(comment.getTopParent() != null ? comment.getTopParent().getId() : null)
+                        .build())
+                .collect(Collectors.toList());
+
+        // 게시글 상세 정보 변환
+        return PostDTO.PostDetailResponseDTO.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .userName(post.getUser().getName())
+                .createDate(post.getCreateDate())
+                .isDone(post.isDone())
+                .commentCount(commentDtoList.size())
+                .comments(commentDtoList)
                 .build();
     }
 }
