@@ -13,6 +13,6 @@ public class CommonDTO {
     @AllArgsConstructor
     @Schema(title = "COMMON_RES_06 : API 실행 성공 여부 응답 DTO")
     public static class IsSuccessDTO{
-        Boolean isSuccess;
+        private Boolean isSuccess;
     }
 }
