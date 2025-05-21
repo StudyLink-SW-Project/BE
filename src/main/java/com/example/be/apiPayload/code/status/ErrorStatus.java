@@ -22,8 +22,11 @@ public enum ErrorStatus implements BaseErrorCode {
     _NOT_FOUND_USER(HttpStatus.NOT_FOUND, "USER401", "해당 유저를 찾을 수 없습니다."),
     _EXIST_EMAIL(HttpStatus.BAD_REQUEST, "USER402", "중복된 이메일입니다."),
     _NOT_CORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "USER405", "비밀번호가 틀립니다."),
-    _NOT_FOUND_COOKIE(HttpStatus.NOT_FOUND, "USER403", "쿠키가 없습니다.")
-    ;
+    _NOT_FOUND_COOKIE(HttpStatus.NOT_FOUND, "USER403", "쿠키가 없습니다."),
+
+    //게시글 관련 에러
+    _NOT_FOUND_POST(HttpStatus.NOT_FOUND, "POST401", "해당 게시글을 찾을 수 없습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;
