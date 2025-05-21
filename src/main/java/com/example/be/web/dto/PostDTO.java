@@ -17,6 +17,7 @@ public class PostDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+
     public static class postRequestDTO{
         String title;
         String content;
@@ -49,5 +50,40 @@ public class PostDTO {
         private long totalElements;
         private boolean first;
         private boolean last;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "댓글 응답 DTO")
+    public static class CommentResponseDTO {
+        private Long id;
+        private String comment;
+        private String userName;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime createDate;
+
+        private Long topParentId;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "게시글 상세 조회 응답 DTO")
+    public static class PostDetailResponseDTO {
+        private Long id;
+        private String title;
+        private String content;
+        private String userName;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime createDate;
+
+        private boolean isDone;
+        private int commentCount;
+        private List<CommentResponseDTO> comments;
     }
 }

@@ -39,5 +39,11 @@ public class PostController {
         return ApiResponse.onSuccess(postService.getPosts(page, 4)); // 4개씩 페이지네이션
     }
 
+    @GetMapping("/{postId}")
+    @Operation(summary = "게시글 상세 조회 API", description = "게시글 ID로 게시글 상세 정보와 댓글 목록을 조회합니다.")
+    public ApiResponse<PostDTO.PostDetailResponseDTO> getPostDetail(
+            @Parameter(description = "게시글 ID") @PathVariable Long postId) {
+        return ApiResponse.onSuccess(postService.getPostDetail(postId));
+    }
 
 }
