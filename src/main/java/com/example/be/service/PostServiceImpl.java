@@ -14,10 +14,15 @@ import com.example.be.web.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -54,5 +59,33 @@ public class PostServiceImpl {
 
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
+    }
+
+    // 페이지네이션을 활용한 게시글 조회 메서드 추가
+    public PostDTO.PageResponseDTO getPosts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> postPage = postRepository.findAllWithCommentsOrderByCreateDateDesc(pageable);
+
+        List<PostDTO.postResponseDTO> postDtoList = postPage.getContent().stream()
+                .map(post -> PostDTO.postResponseDTO.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .content(post.getContent())
+                        .userName(post.getUser().getName())
+                        .createDate(post.getCreateDate().toLocalDate())
+                        .isDone(post.isDone())
+                        // 댓글 개수 추가
+                        .commentCount(post.getComments() != null ? post.getComments().size() : 0)
+                        .build())
+                .collect(Collectors.toList());
+
+        return PostDTO.PageResponseDTO.builder()
+                .posts(postDtoList)
+                .currentPage(postPage.getNumber())
+                .totalPages(postPage.getTotalPages())
+                .totalElements(postPage.getTotalElements())
+                .first(postPage.isFirst())
+                .last(postPage.isLast())
+                .build();
     }
 }
