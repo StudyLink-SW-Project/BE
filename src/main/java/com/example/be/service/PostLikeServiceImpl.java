@@ -27,32 +27,34 @@ public class PostLikeServiceImpl {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
 
+    private User getUserFromRequest(HttpServletRequest request) {
+        try {
+            String accessToken = jwtUtilService.extractTokenFromCookie(request, "accessToken");
+            if (accessToken != null) {
+                String userId = jwtUtilService.getUserIdFromToken(accessToken);
+                return userRepository.findByUserId(UUID.fromString(userId)).orElse(null);
+            }
+        } catch (Exception e) {
+            throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
+        }
+        return null;
+    }
+
+
     @Transactional
     public PostDTO.PostLikeResponseDTO togglePostLike(Long postId, HttpServletRequest request) {
-        // 토큰에서 사용자 정보 가져오기
-        String accessToken = jwtUtilService.extractTokenFromCookie(request, "accessToken");
-        if (accessToken == null) {
-            throw new UserHandler(ErrorStatus._NOT_FOUND_USER);
-        }
 
-        String userId = jwtUtilService.getUserIdFromToken(accessToken);
-        User user = userRepository.findByUserId(UUID.fromString(userId))
-                .orElseThrow(() -> new UserHandler(ErrorStatus._NOT_FOUND_USER));
-
-        // 게시글 정보 가져오기
+        User user = getUserFromRequest(request);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus._NOT_FOUND_POST));
 
-        // 이미 좋아요를 눌렀는지 확인
         Optional<PostLike> existingLike = postLikeRepository.findByUserAndPost(user, post);
 
         boolean isLiked;
         if (existingLike.isPresent()) {
-            // 좋아요가 이미 있으면 삭제 (좋아요 취소)
             postLikeRepository.delete(existingLike.get());
             isLiked = false;
         } else {
-            // 좋아요가 없으면 추가
             PostLike postLike = PostLike.builder()
                     .user(user)
                     .post(post)
