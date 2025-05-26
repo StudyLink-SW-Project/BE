@@ -78,5 +78,6 @@ server:
 
 livekit:
   api:
+    host: ${LIVEKIT_API_HOST}
     key: ${LIVEKIT_API_KEY}
     secret: ${LIVEKIT_API_SECRET}
