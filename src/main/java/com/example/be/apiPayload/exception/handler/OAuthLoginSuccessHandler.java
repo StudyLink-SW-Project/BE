@@ -30,14 +30,15 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-//    @Value("${jwt.redirect}")
-//    private String REDIRECT_URI; // 프론트엔드로 Jwt 토큰을 리다이렉트할 URI
+    @Value("${jwt.redirect}")
+    private String REDIRECT_URI; // 프론트엔드로 Jwt 토큰을 리다이렉트할 URI
 
     @Value("${jwt.access-token.expiration-time}")
     private long ACCESS_TOKEN_EXPIRATION_TIME; // 액세스 토큰 유효기간
 
     @Value("${jwt.refresh-token.expiration-time}")
     private long REFRESH_TOKEN_EXPIRATION_TIME; // 리프레쉬 토큰 유효기간
+
 
     private OAuth2UserInfo oAuth2UserInfo = null;
 
@@ -127,6 +128,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge((int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000));
         response.addCookie(refreshTokenCookie);
+        response.sendRedirect(REDIRECT_URI);
 
 //        // 이름, 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
 //        String encodedName = URLEncoder.encode(name, "UTF-8");

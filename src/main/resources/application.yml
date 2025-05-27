@@ -5,6 +5,7 @@ spring:
     password: ${SQL_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   security:
+    require-ssl: true
     oauth2:
       client:
         registration:
@@ -58,7 +59,7 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET} #64글자 이상의 영어 알파벳으로 이루어진 값으로 사용
-#  redirect: http://localhost:8080/login?name=%s&access_token=%s&refresh_token=%s # 소셜 로그인 성공 이후 프론트엔드 측으로 보내줄 리다이렉트 URI
+  redirect: https://studylink.store/login/oauth2/code/google # 소셜 로그인 성공 이후 프론트엔드 측으로 보내줄 리다이렉트 URI
   access-token:
     expiration-time: 3600000 #액세스 토큰의 유효기간
   refresh-token:
