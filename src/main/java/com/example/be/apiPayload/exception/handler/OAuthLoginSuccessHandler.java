@@ -128,7 +128,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge((int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000));
         response.addCookie(refreshTokenCookie);
-        response.sendRedirect(REDIRECT_URI);
+        response.sendRedirect(REDIRECT_URI+provider);
 
 //        // 이름, 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
 //        String encodedName = URLEncoder.encode(name, "UTF-8");
