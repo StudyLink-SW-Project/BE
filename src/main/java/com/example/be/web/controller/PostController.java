@@ -50,13 +50,20 @@ public class PostController {
         return ApiResponse.onSuccess(postService.getPostDetail(postId, request));
     }
 
-    // 좋아요 토글 API 추가
     @PostMapping("/{postId}/like")
     @Operation(summary = "게시글 좋아요 토글 API", description = "게시글에 좋아요를 누르거나 취소합니다.")
     public ApiResponse<PostDTO.PostLikeResponseDTO> togglePostLike(
             @Parameter(description = "게시글 ID") @PathVariable Long postId,
             HttpServletRequest request) {
         return ApiResponse.onSuccess(postLikeService.togglePostLike(postId, request));
+    }
+
+    @PostMapping("/{postId}/delete")
+    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
+    public ApiResponse<CommonDTO.IsSuccessDTO> delete(
+            @Parameter(description = "게시글 ID") @PathVariable Long postId,
+            HttpServletRequest request) {
+        return ApiResponse.onSuccess(postService.deletePost(postId, request));
     }
 
 }

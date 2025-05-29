@@ -85,29 +85,29 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         String accessToken = jwtUtil.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
 
         String origin = httpRequest.getHeader("Origin");
-        boolean isSecure = origin == null || !origin.contains("localhost");
+        boolean isLocalhost = origin != null && origin.contains("localhost");
 
-// 액세스 토큰
-        if (isSecure) {
-            // 배포 환경: Secure + SameSite=None
-            response.addHeader("Set-Cookie",
-                    String.format("accessToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
-                            accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
-        } else {
-            // 로컬 환경: SameSite=None (Secure 없음)
+        // 액세스 토큰 쿠키 설정
+        if (isLocalhost) {
+            // 로컬 개발 환경: SameSite=None, Secure=false
             response.addHeader("Set-Cookie",
                     String.format("accessToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=None",
                             accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
+        } else {
+            // 배포 환경: SameSite=None, Secure=true
+            response.addHeader("Set-Cookie",
+                    String.format("accessToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                            accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
         }
 
-// 리프레시 토큰
-        if (isSecure) {
+        // 리프레시 토큰 쿠키 설정
+        if (isLocalhost) {
             response.addHeader("Set-Cookie",
-                    String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                    String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=None",
                             refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
         } else {
             response.addHeader("Set-Cookie",
-                    String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=None",
+                    String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
                             refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
         }
 

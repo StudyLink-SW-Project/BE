@@ -26,22 +26,21 @@ public class SecurityConfig {
     private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
     private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
 
-    // CORS 설정
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "https://studylink.store",       // 프론트엔드 도메인
-                "https://api.studylink.store",   // 백엔드 API 도메인
-                "https://swagger.studylink.store", // Swagger UI 도메인 (필요시)
+                "https://studylink.store",
+                "https://api.studylink.store",
+                "https://swagger.studylink.store",
                 "http://localhost:6080",
-                "http://localhost:5173"
+                "http://localhost:5173"  // 프론트엔드 개발 서버
         ));
         config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization"));
+        config.setExposedHeaders(List.of("Authorization", "Set-Cookie")); // Set-Cookie 헤더 노출
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowCredentials(true);
-        config.setMaxAge(3600L); // 프리플라이트 요청 캐싱 시간 (1시간)
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
