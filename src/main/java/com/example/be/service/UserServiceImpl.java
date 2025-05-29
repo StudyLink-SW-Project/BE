@@ -87,26 +87,31 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         String origin = httpRequest.getHeader("Origin");
         boolean isSecure = origin == null || !origin.contains("localhost");
 
+// 액세스 토큰
+        if (isSecure) {
+            // 배포 환경: Secure + SameSite=None
+            response.addHeader("Set-Cookie",
+                    String.format("accessToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                            accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
+        } else {
+            // 로컬 환경: SameSite=None (Secure 없음)
+            response.addHeader("Set-Cookie",
+                    String.format("accessToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=None",
+                            accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
+        }
 
-        // 쿠키에 액세스 토큰 추가
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);  // JavaScript에서 접근 불가능하게 설정
-        accessTokenCookie.setPath("/");       // 모든 경로에서 쿠키 접근 가능
-        accessTokenCookie.setMaxAge((int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000));  // 밀리초를 초로 변환
-        accessTokenCookie.setSecure(isSecure);  // localhost면 false, 배포면 true
-        response.addCookie(accessTokenCookie);
+// 리프레시 토큰
+        if (isSecure) {
+            response.addHeader("Set-Cookie",
+                    String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                            refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
+        } else {
+            response.addHeader("Set-Cookie",
+                    String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=None",
+                            refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
+        }
 
-        // 쿠키에 리프레시 토큰 추가
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000));
-        refreshTokenCookie.setSecure(isSecure);
-        response.addCookie(refreshTokenCookie);
-
-        return CommonDTO.IsSuccessDTO.builder()
-                .isSuccess(true)
-                .build();
+        return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
 
     public UserDTO.UserResponseDto getUserInfo(String accessToken) {
