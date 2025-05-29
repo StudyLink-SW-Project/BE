@@ -144,17 +144,24 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
             throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
         }
 
-        Cookie access = new Cookie("accessToken", null);
-        Cookie refresh = new Cookie("refreshToken", null);
+        // Origin 헤더로 환경 판단
+        String origin = request.getHeader("Origin");
+        boolean isSecure = origin == null || !origin.contains("localhost");
 
-        access.setPath("/");
-        refresh.setPath("/");
-
-        access.setMaxAge(0);
-        refresh.setMaxAge(0);
-
-        response.addCookie(access);
-        response.addCookie(refresh);
+        // 쿠키 삭제 - addHeader 방식 사용
+        if (isSecure) {
+            // 배포 환경
+            response.addHeader("Set-Cookie",
+                    "accessToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
+            response.addHeader("Set-Cookie",
+                    "refreshToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
+        } else {
+            // 로컬 환경
+            response.addHeader("Set-Cookie",
+                    "accessToken=; Path=/; Max-Age=0; HttpOnly; SameSite=None");
+            response.addHeader("Set-Cookie",
+                    "refreshToken=; Path=/; Max-Age=0; HttpOnly; SameSite=None");
+        }
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
