@@ -59,7 +59,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
 
     }
 
-    public CommonDTO.IsSuccessDTO login(UserDTO.LoginRequestDto request, HttpServletResponse response) {
+    public CommonDTO.IsSuccessDTO login(UserDTO.LoginRequestDto request, HttpServletResponse response, HttpServletRequest httpRequest) {
         //db에 아이디랑 비밀번호가 일치하는지 조회
         // 일치한다면 토큰 발급 후 response
 
@@ -84,6 +84,9 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         // AccessToken 발급
         String accessToken = jwtUtil.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
 
+        String origin = httpRequest.getHeader("Origin");
+        boolean isSecure = origin == null || !origin.contains("localhost");
+
 
         // 쿠키에 액세스 토큰 추가
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
@@ -91,6 +94,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         accessTokenCookie.setSecure(true);    // HTTPS에서만 전송되도록 설정, https 적용 후 true로 설정 예정
         accessTokenCookie.setPath("/");       // 모든 경로에서 쿠키 접근 가능
         accessTokenCookie.setMaxAge((int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000));  // 밀리초를 초로 변환
+        accessTokenCookie.setSecure(isSecure);  // localhost면 false, 배포면 true
         response.addCookie(accessTokenCookie);
 
         // 쿠키에 리프레시 토큰 추가
@@ -99,6 +103,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge((int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000));
+        refreshTokenCookie.setSecure(isSecure);
         response.addCookie(refreshTokenCookie);
 
         return CommonDTO.IsSuccessDTO.builder()
