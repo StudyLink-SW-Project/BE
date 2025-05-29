@@ -146,5 +146,17 @@ public class PostServiceImpl {
                 .build();
     }
 
+    public CommonDTO.IsSuccessDTO deletePost(Long postId, HttpServletRequest request) {
+        User user= getUserFromRequest(request);
+
+        postRepository.findById(postId).orElseThrow(() ->
+                new PostHandler(ErrorStatus._NOT_FOUND_POST));
+
+        postRepository.findByIdAndUserId(postId, user.getId()).orElseThrow(()->
+                new PostHandler(ErrorStatus._NOT_USER_POST));
+
+        return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
+    }
+
 
 }
