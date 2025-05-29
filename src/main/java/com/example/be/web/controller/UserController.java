@@ -34,7 +34,7 @@ public class UserController {
         return ApiResponse.onSuccess(userService.login(dtoRequest, response, request));
     }
 
-    @PostMapping("/info")
+    @GetMapping("/info")
     @Operation(summary = "유저 정보 반환 API")
     public ApiResponse<UserDTO.UserResponseDto> userInfo(HttpServletRequest request) {
         // 쿠키에서 액세스 토큰 추출은 서비스로 이동
