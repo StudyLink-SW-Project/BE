@@ -152,11 +152,11 @@ public class PostServiceImpl {
         postRepository.findById(postId).orElseThrow(() ->
                 new PostHandler(ErrorStatus._NOT_FOUND_POST));
 
-        postRepository.findByIdAndUserId(postId, user.getId()).orElseThrow(()->
+        Post post = postRepository.findByIdAndUserId(postId, user.getId()).orElseThrow(()->
                 new PostHandler(ErrorStatus._NOT_USER_POST));
+
+        postRepository.delete(post);
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
-
-
 }
