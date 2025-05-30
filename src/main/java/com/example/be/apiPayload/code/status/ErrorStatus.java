@@ -26,6 +26,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //게시글 관련 에러
     _NOT_FOUND_POST(HttpStatus.NOT_FOUND, "POST401", "해당 게시글을 찾을 수 없습니다."),
+    _NOT_USER_POST(HttpStatus.NOT_FOUND, "POST402", "해당 유저의 게시글이 아닙니다."),
 
     //댓글 관련 에러
     _NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "COMMENT404", "해당 댓글을 찾을 수 없습니다.");
