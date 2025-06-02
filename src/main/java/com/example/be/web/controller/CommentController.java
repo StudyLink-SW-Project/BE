@@ -35,4 +35,12 @@ public class CommentController {
             HttpServletRequest request) {
         return ApiResponse.onSuccess(commentLikeService.toggleCommentLike(commentId, request));
     }
+
+    @PostMapping("/{commentId}/delete")
+    @Operation(summary = "댓글 삭제 API", description = "댓글을 삭제합니다.")
+    public ApiResponse<CommonDTO.IsSuccessDTO> deleteComment(
+            @Parameter(description = "댓글 ID") @PathVariable Long commentId,
+            HttpServletRequest request) {
+        return ApiResponse.onSuccess(commentService.deleteComment(commentId, request));
+    }
 }
