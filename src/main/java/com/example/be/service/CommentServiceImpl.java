@@ -70,4 +70,17 @@ public class CommentServiceImpl {
         commentRepository.save(comment);
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
+
+    public CommonDTO.IsSuccessDTO deleteComment(Long commentId, HttpServletRequest request) {
+        User user= getUserFromRequest(request);
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()->
+                new CommentHandler(ErrorStatus._NOT_FOUND_COMMENT));
+
+        commentRepository.findByIdAndUserId(commentId, user.getId()).orElseThrow(() ->
+                new CommentHandler(ErrorStatus._NOT_USER_COMMENT));
+
+        commentRepository.delete(comment);
+        return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
+    }
 }
