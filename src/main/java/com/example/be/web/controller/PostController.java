@@ -66,4 +66,13 @@ public class PostController {
         return ApiResponse.onSuccess(postService.deletePost(postId, request));
     }
 
+    @GetMapping("/mypost")
+    @Operation(summary = "내가 작성한 게시글 조회 API", description = "내가 작성한 게시글들을 조회합니다.")
+    public ApiResponse<PostDTO.PageResponseDTO> getMyPosts(
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+            HttpServletRequest request) {
+        return ApiResponse.onSuccess(postService.getMyPosts(page, 4, request));
+    }
+
+
 }
