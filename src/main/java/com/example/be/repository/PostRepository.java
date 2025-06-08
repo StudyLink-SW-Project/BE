@@ -1,6 +1,7 @@
 package com.example.be.repository;
 
 import com.example.be.domain.Post;
+import com.example.be.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -17,4 +18,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findById(Long id);
 
     Optional<Post> findByIdAndUserId(Long id, Long userId);
+
+    Page<Post> findPostsByUserOrderByCreateDateDesc(User user, Pageable pageable);
 }

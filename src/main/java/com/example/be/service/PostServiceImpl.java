@@ -159,4 +159,33 @@ public class PostServiceImpl {
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
+
+    public PostDTO.PageResponseDTO getMyPosts(int page, int size, HttpServletRequest request) {
+        User user= getUserFromRequest(request);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> postPage = postRepository.findPostsByUserOrderByCreateDateDesc(user, pageable);
+
+        List<PostDTO.postResponseDTO> postDtoList = postPage.getContent().stream()
+                .map(post -> PostDTO.postResponseDTO.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .content(post.getContent())
+                        .userName(post.getUser().getName())
+                        .createDate(post.getCreateDate().toLocalDate())
+                        .commentCount(post.getComments() != null ? post.getComments().size() : 0)
+                        .likeCount(postLikeService.getPostLikeCount(post))
+                        .build())
+                .collect(Collectors.toList());
+
+        return PostDTO.PageResponseDTO.builder()
+                .posts(postDtoList)
+                .currentPage(postPage.getNumber())
+                .totalPages(postPage.getTotalPages())
+                .totalElements(postPage.getTotalElements())
+                .first(postPage.isFirst())
+                .last(postPage.isLast())
+                .build();
+
+    }
 }
