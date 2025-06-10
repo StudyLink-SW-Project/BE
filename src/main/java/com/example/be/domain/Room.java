@@ -31,9 +31,9 @@ public class Room {
 
     private String maxParticipants;
 
-    private Long participantCount;
+    private int participantCount;
 
-    private LocalDateTime createDate;
+    private long createDate;
 
 
     //Relationships
