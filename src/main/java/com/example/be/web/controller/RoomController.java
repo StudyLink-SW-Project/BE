@@ -27,16 +27,6 @@ public class RoomController {
     @GetMapping("/rooms")
     @Operation(summary = "방 목록 조회", description = "생성된 모든 방 목록을 조회합니다.")
     public ApiResponse<RoomDTO.RoomListResponseDto> getAllRooms() {
-//
-//        AccessToken accessToken = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
-//
-//        // Grant 설정
-//        RoomList roomList = new RoomList(true);
-//        accessToken.addGrants(roomList);
-//
-//        String jwt = accessToken.toJwt();
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Authorization", "Bearer " + jwt);
 
         return ApiResponse.onSuccess(roomService.getAllRooms());
     }
