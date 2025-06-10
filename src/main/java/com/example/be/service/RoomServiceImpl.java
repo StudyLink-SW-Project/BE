@@ -5,17 +5,9 @@ import com.example.be.apiPayload.exception.handler.RoomHandler;
 import com.example.be.domain.Room;
 import com.example.be.repository.RoomRepository;
 import com.example.be.web.dto.RoomDTO;
-import io.livekit.server.RoomService;
-import io.livekit.server.RoomServiceClient;
-import livekit.LivekitModels;
-import livekit.LivekitRoom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import retrofit2.Call;
-import retrofit2.Response;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,39 +15,28 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RoomServiceImpl {
-    private final RoomServiceClient roomServiceClient;
     private final RoomRepository roomRepository;
 
     public RoomDTO.RoomListResponseDto getAllRooms() {
-        try {
-            Call<List<LivekitModels.Room>> call = roomServiceClient.listRooms();
-            Response<List<LivekitModels.Room>> response = call.execute();
 
-            if (!response.isSuccessful()) {
-                throw new RuntimeException("Failed to fetch rooms: " + response.errorBody().string());
-            }
+        List<Room> rooms = roomRepository.findAll();
+        List<RoomDTO.RoomDto> roomDtos = rooms.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
 
-            List<LivekitModels.Room> rooms = response.body();
-            List<RoomDTO.RoomDto> roomDtos = rooms.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-
-            return RoomDTO.RoomListResponseDto.builder()
-                    .rooms(roomDtos)
-                    .totalCount(roomDtos.size())
-                    .build();
-        } catch (IOException e) {
-            log.error("Failed to fetch rooms from LiveKit", e);
-            throw new RuntimeException("Failed to fetch rooms from LiveKit", e);
-        }
+        return RoomDTO.RoomListResponseDto.builder()
+                .rooms(roomDtos)
+                .totalCount(roomDtos.size())
+                .build();
     }
 
-
-    private RoomDTO.RoomDto convertToDto(LivekitModels.Room room) {
+    private RoomDTO.RoomDto convertToDto(Room room) {
         return RoomDTO.RoomDto.builder()
-                .roomName(room.getName())
-                .creationTime(room.getCreationTime())
-                .participantsCounts(room.getNumParticipants())
+                .roomName(room.getTitle())
+                .password(room.getPassword())
+                .roomImage(room.getRoomImage())
+                .creationTime(room.getCreateDate())
+                .participantsCounts(room.getParticipantCount())
                 .maxParticipants(room.getMaxParticipants())
                 .build();
     }
@@ -78,7 +59,4 @@ public class RoomServiceImpl {
                 .maxParticipants(room.getMaxParticipants())
                 .build();
     }
-
-
-
 }
