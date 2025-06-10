@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Room {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,18 +25,16 @@ public class Room {
     private String title;
 
     private String password;
-
     private String roomImage;
 
-    private String maxParticipants;
+    @Builder.Default
+    private String maxParticipants = "10"; // 기본값 설정
 
-    private int participantCount;
+    @Builder.Default
+    private int participantCount = 0; // 기본값 설정
 
     private long createDate;
 
-
-    //Relationships
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Participant> participants;
-
 }
