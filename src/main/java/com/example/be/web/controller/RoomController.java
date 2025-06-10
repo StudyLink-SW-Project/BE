@@ -4,18 +4,9 @@ package com.example.be.web.controller;
 import com.example.be.apiPayload.ApiResponse;
 import com.example.be.service.RoomServiceImpl;
 import com.example.be.web.dto.RoomDTO;
-import io.livekit.server.AccessToken;
-import io.livekit.server.RoomJoin;
-import io.livekit.server.RoomList;
-import io.livekit.server.VideoGrant;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/room")
@@ -29,5 +20,12 @@ public class RoomController {
     public ApiResponse<RoomDTO.RoomListResponseDto> getAllRooms() {
 
         return ApiResponse.onSuccess(roomService.getAllRooms());
+    }
+
+    @PostMapping("/set")
+    @Operation(summary = "비밀번호 및 이미지 저장", description = "생성된 방의 이미지번호와 비밀번호를 설정합니다.")
+    public ApiResponse<RoomDTO.RoomDto> setRoom(@RequestBody RoomDTO.RoomSetRequestDto request) {
+
+        return ApiResponse.onSuccess(roomService.setRoom(request));
     }
 }

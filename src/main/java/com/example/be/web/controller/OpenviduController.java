@@ -68,7 +68,7 @@ public class OpenviduController {
                                     .title(roomName)
                                     .createDate(createAt)
                                     .participantCount(0)
-                                    .maxParticipants("10") // 기본값 설정
+                                    .maxParticipants(10) // 기본값 설정
                                     .build();
                             roomRepository.save(newRoom);
                             System.out.println("Room created: " + roomName);
