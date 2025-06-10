@@ -45,37 +45,65 @@ public class OpenviduController {
         return ResponseEntity.ok(Map.of("token", token.toJwt()));
     }
 
-    @PostMapping(value = "/livekit/webhook", consumes = "application/webhook+json")
-    public ResponseEntity<String> receiveWebhook(@RequestHeader("Authorization") String authHeader, @RequestBody String body) {
-        WebhookReceiver webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
-        try {
-            WebhookEvent event = webhookReceiver.receive(body, authHeader);
-            String roomName = event.getRoom().getName();
-            Room room = roomRepository.findByTitle(roomName);
-            long createAt = event.getRoom().getCreationTime();
-            System.out.println("LiveKit Webhook: " + event.toString());
+        @PostMapping(value = "/livekit/webhook", consumes = "application/webhook+json")
+        public ResponseEntity<String> receiveWebhook(@RequestHeader("Authorization") String authHeader, @RequestBody String body) {
+            WebhookReceiver webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
+            try {
+                WebhookEvent event = webhookReceiver.receive(body, authHeader);
+                String roomName = event.getRoom().getName();
+                long createAt = event.getRoom().getCreationTime();
 
-            switch (event.toString()) {
-                case "room_started" -> {
-                    room = Room.builder()
-                            .title(roomName)
-                            .createDate(createAt)
-                            .build();
-                    roomRepository.save(room);
+                System.out.println("LiveKit Webhook Event: " + event.getEvent());
+                System.out.println("Room Name: " + roomName);
+
+                // 이벤트 타입에 따른 처리 - event.getEvent() 사용
+                String eventType = event.getEvent();
+
+                switch (eventType) {
+                    case "room_started" -> {
+                        // 기존 방이 있는지 확인 후 생성
+                        Room existingRoom = roomRepository.findByTitle(roomName);
+                        if (existingRoom == null) {
+                            Room newRoom = Room.builder()
+                                    .title(roomName)
+                                    .createDate(createAt)
+                                    .participantCount(0)
+                                    .maxParticipants("10") // 기본값 설정
+                                    .build();
+                            roomRepository.save(newRoom);
+                            System.out.println("Room created: " + roomName);
+                        }
+                    }
+                    case "room_finished" -> {
+                        Room room = roomRepository.findByTitle(roomName);
+                        if (room != null) {
+                            roomRepository.delete(room);
+                            System.out.println("Room deleted: " + roomName);
+                        }
+                    }
+                    case "participant_joined" -> {
+                        Room room = roomRepository.findByTitle(roomName);
+                        if (room != null) {
+                            room.setParticipantCount(room.getParticipantCount() + 1);
+                            roomRepository.save(room);
+                            System.out.println("Participant joined. Current count: " + room.getParticipantCount());
+                        }
+                    }
+                    case "participant_left" -> {
+                        Room room = roomRepository.findByTitle(roomName);
+                        if (room != null && room.getParticipantCount() > 0) {
+                            room.setParticipantCount(room.getParticipantCount() - 1);
+                            roomRepository.save(room);
+                            System.out.println("Participant left. Current count: " + room.getParticipantCount());
+                        }
+                    }
                 }
-                case "room_finished" -> roomRepository.delete(room);
-                case "participant_joined" -> {
-                    room.setParticipantCount(room.getParticipantCount() + 1);
-                    roomRepository.save(room);
-                }
-                case "participant_left" -> {
-                    room.setParticipantCount(room.getParticipantCount() - 1);
-                    roomRepository.save(room);
-                }
+            } catch (Exception e) {
+                System.err.println("Error validating webhook event: " + e.getMessage());
+                e.printStackTrace();
+                return ResponseEntity.badRequest().body("Invalid webhook");
             }
-        } catch (Exception e) {
-            System.err.println("Error validating webhook event: " + e.getMessage());
+
+            return ResponseEntity.ok("ok");
         }
-        return ResponseEntity.ok("ok");
     }
-}
