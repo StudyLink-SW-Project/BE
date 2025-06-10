@@ -28,10 +28,10 @@ public class Room {
     private String roomImage;
 
     @Builder.Default
-    private String maxParticipants = "10"; // 기본값 설정
+    private int maxParticipants = 10;
 
     @Builder.Default
-    private int participantCount = 0; // 기본값 설정
+    private int participantCount = 0;
 
     private long createDate;
 

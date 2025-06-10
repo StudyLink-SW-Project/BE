@@ -1,5 +1,9 @@
 package com.example.be.service;
 
+import com.example.be.apiPayload.code.status.ErrorStatus;
+import com.example.be.apiPayload.exception.handler.RoomHandler;
+import com.example.be.domain.Room;
+import com.example.be.repository.RoomRepository;
 import com.example.be.web.dto.RoomDTO;
 import io.livekit.server.RoomService;
 import io.livekit.server.RoomServiceClient;
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RoomServiceImpl {
     private final RoomServiceClient roomServiceClient;
+    private final RoomRepository roomRepository;
 
     public RoomDTO.RoomListResponseDto getAllRooms() {
         try {
@@ -48,12 +53,32 @@ public class RoomServiceImpl {
 
     private RoomDTO.RoomDto convertToDto(LivekitModels.Room room) {
         return RoomDTO.RoomDto.builder()
-                .sid(room.getSid())
-                .name(room.getName())
+                .roomName(room.getName())
                 .creationTime(room.getCreationTime())
-                .numParticipants(room.getNumParticipants())
+                .participantsCounts(room.getNumParticipants())
                 .maxParticipants(room.getMaxParticipants())
-                .metadata(room.getMetadata())
                 .build();
     }
+
+    public RoomDTO.RoomDto setRoom(RoomDTO.RoomSetRequestDto request) {
+        Room room = roomRepository.findByTitle(request.getRoomName());
+        if (room == null) {
+            throw new RoomHandler(ErrorStatus._NOT_FOUND_ROOM);
+        }
+        room.setPassword(request.getPassword());
+        room.setRoomImage(request.getRoomImage());
+        roomRepository.save(room);
+
+        return RoomDTO.RoomDto.builder()
+                .roomName(room.getTitle())
+                .roomImage(room.getRoomImage())
+                .password(room.getPassword())
+                .participantsCounts(room.getParticipantCount())
+                .creationTime(room.getCreateDate())
+                .maxParticipants(room.getMaxParticipants())
+                .build();
+    }
+
+
+
 }

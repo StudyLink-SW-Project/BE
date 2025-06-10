@@ -30,7 +30,10 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //댓글 관련 에러
     _NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "COMMENT401", "해당 댓글을 찾을 수 없습니다."),
-    _NOT_USER_COMMENT(HttpStatus.NOT_FOUND, "COMMENT402", "해당 유저의 댓글이 아닙니다.");
+    _NOT_USER_COMMENT(HttpStatus.NOT_FOUND, "COMMENT402", "해당 유저의 댓글이 아닙니다."),
+
+    //스터디룸 관련 에러
+    _NOT_FOUND_ROOM(HttpStatus.NOT_FOUND, "ROOM401", "해당 방의 이름을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

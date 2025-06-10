@@ -14,12 +14,12 @@ public class RoomDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RoomDto {
-        private String sid;
-        private String name;
+        private String roomName;
+        private String password;
+        private String roomImage;
         private long creationTime;
-        private int numParticipants;
+        private int participantsCounts;
         private int maxParticipants;
-        private String metadata;
     }
 
     @Builder
@@ -39,5 +39,15 @@ public class RoomDTO {
     public static class RoomListResponseDto {
         private List<RoomDto> rooms;
         private int totalCount;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RoomSetRequestDto {
+        private String roomName;
+        private String password;
+        private String roomImage;
     }
 }
