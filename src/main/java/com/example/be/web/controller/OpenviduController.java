@@ -74,13 +74,6 @@ public class OpenviduController {
                             System.out.println("Room created: " + roomName);
                         }
                     }
-                    case "room_finished" -> {
-                        Room room = roomRepository.findByTitle(roomName);
-                        if (room != null) {
-                            roomRepository.delete(room);
-                            System.out.println("Room deleted: " + roomName);
-                        }
-                    }
                     case "participant_joined" -> {
                         Room room = roomRepository.findByTitle(roomName);
                         if (room != null) {
@@ -91,10 +84,17 @@ public class OpenviduController {
                     }
                     case "participant_left" -> {
                         Room room = roomRepository.findByTitle(roomName);
-                        if (room != null && room.getParticipantCount() > 0) {
+                        if (room != null) {
                             room.setParticipantCount(room.getParticipantCount() - 1);
                             roomRepository.save(room);
+                        }
+                        if (room != null && room.getParticipantCount() > 0) {
+                            roomRepository.save(room);
                             System.out.println("Participant left. Current count: " + room.getParticipantCount());
+                            }
+                        else if (room != null && room.getParticipantCount() == 0) {
+                            roomRepository.delete(room);
+                            System.out.println("Room deleted: " + roomName);
                         }
                     }
                 }
