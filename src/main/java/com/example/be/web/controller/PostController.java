@@ -1,24 +1,15 @@
 package com.example.be.web.controller;
 
 import com.example.be.apiPayload.ApiResponse;
-import com.example.be.apiPayload.code.status.ErrorStatus;
-import com.example.be.apiPayload.exception.handler.UserHandler;
-import com.example.be.domain.User;
-import com.example.be.repository.UserRepository;
-import com.example.be.service.JwtUtilServiceImpl;
 import com.example.be.service.PostLikeServiceImpl;
 import com.example.be.service.PostServiceImpl;
-import com.example.be.service.UserServiceImpl;
 import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.PostDTO;
-import com.example.be.web.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/post")
