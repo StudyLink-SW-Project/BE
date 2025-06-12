@@ -33,7 +33,11 @@ public enum ErrorStatus implements BaseErrorCode {
     _NOT_USER_COMMENT(HttpStatus.NOT_FOUND, "COMMENT402", "해당 유저의 댓글이 아닙니다."),
 
     //스터디룸 관련 에러
-    _NOT_FOUND_ROOM(HttpStatus.NOT_FOUND, "ROOM401", "해당 방의 이름을 찾을 수 없습니다.");
+    _NOT_FOUND_ROOM(HttpStatus.NOT_FOUND, "ROOM401", "해당 방의 이름을 찾을 수 없습니다."),
+
+    //디데이 관련 에러
+    _NOT_USER_DDAY(HttpStatus.BAD_REQUEST, "DDAY401", "해당 유저의 디데이가 아닙니다."),
+    _NOT_FOUND_DDAY(HttpStatus.NOT_FOUND, "DDAY402", "해당 디데이를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
