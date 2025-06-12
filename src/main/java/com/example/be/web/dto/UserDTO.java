@@ -37,4 +37,15 @@ public class UserDTO {
         private String email;
         private String password;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class studyTimeResponseDto {
+        private Long userId;
+        private String todayStudyTime;
+        private String totalStudyTime;
+        private String goalStudyTime;
+    }
 }

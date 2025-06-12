@@ -1,7 +1,6 @@
 package com.example.be.service;
 
 
-import com.example.be.apiPayload.ApiResponse;
 import com.example.be.apiPayload.code.status.ErrorStatus;
 import com.example.be.apiPayload.exception.handler.PostHandler;
 import com.example.be.apiPayload.exception.handler.UserHandler;
@@ -13,10 +12,8 @@ import com.example.be.repository.UserRepository;
 import com.example.be.web.dto.CommentDTO;
 import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.PostDTO;
-import com.example.be.web.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
