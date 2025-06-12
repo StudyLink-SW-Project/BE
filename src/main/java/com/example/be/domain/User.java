@@ -3,6 +3,9 @@ package com.example.be.domain;
 import com.example.be.domain.enums.LoginType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -34,10 +37,16 @@ public class User {
 
     private String providerId;
 
-    private String gptKey;
-
     private LocalDateTime createDate;
 
+    @Column(columnDefinition = "int default 0")
+    private int todayStudyTime;
+
+    @Column(columnDefinition = "int default 0")
+    private int totalStudyTime;
+
+    @Column(columnDefinition = "int default 0")
+    private int goalStudyTime;
 
     //Relationships
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
