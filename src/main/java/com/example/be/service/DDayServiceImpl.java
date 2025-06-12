@@ -76,4 +76,19 @@ public class DDayServiceImpl {
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
+
+    public CommonDTO.IsSuccessDTO editDDay (HttpServletRequest request,  DDayDTO.DDayEditRequestDto requestDto) {
+        User user = getUserFromRequest(request);
+
+        dayRepository.findById(requestDto.getId()).orElseThrow(() -> new DDayHandler(ErrorStatus._NOT_FOUND_DDAY));
+        DDay dDay = dayRepository.findByIdAndUser(requestDto.getId(), user)
+                .orElseThrow(() -> new DDayHandler(ErrorStatus._NOT_USER_DDAY));
+
+        dDay.setName(requestDto.getName());
+        dDay.setDay(requestDto.getDay());
+
+        dayRepository.save(dDay);
+
+        return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
+    }
 }
