@@ -1,6 +1,7 @@
 package com.example.be.service;
 
 import com.example.be.apiPayload.code.status.ErrorStatus;
+import com.example.be.apiPayload.exception.handler.DDayHandler;
 import com.example.be.apiPayload.exception.handler.UserHandler;
 import com.example.be.domain.DDay;
 import com.example.be.domain.User;
@@ -62,5 +63,17 @@ public class DDayServiceImpl {
                         .day(day.getDay())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public CommonDTO.IsSuccessDTO deleteDDay (HttpServletRequest request, Long id) {
+        User user = getUserFromRequest(request);
+
+        dayRepository.findById(id).orElseThrow(() -> new DDayHandler(ErrorStatus._NOT_FOUND_DDAY));
+        DDay dDay = dayRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new DDayHandler(ErrorStatus._NOT_USER_DDAY));
+
+        dayRepository.delete(dDay);
+
+        return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
 }

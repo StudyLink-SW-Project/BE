@@ -26,13 +26,12 @@ public class DDayController {
         return ApiResponse.onSuccess(dayService.createDDay(request, requestDto));
     }
 
-//    @PostMapping("")
-//    @Operation(summary = "디데이 삭제 API", description = "디데이를 삭제합니다.")
-//    public ApiResponse<CommonDTO.IsSuccessDTO> createComment(
-//            @RequestBody CommentDTO.CommentRequestDTO requestDTO,
-//            HttpServletRequest request) {
-//        return ApiResponse.onSuccess(commentService.createComment(requestDTO, request));
-//    }
+    @DeleteMapping("/{id}")
+    @Operation(summary = "디데이 삭제 API", description = "디데이를 삭제합니다.")
+    public ApiResponse<CommonDTO.IsSuccessDTO> deleteDDay(
+            HttpServletRequest request, @PathVariable Long id) {
+        return ApiResponse.onSuccess(dayService.deleteDDay(request, id));
+    }
 //
 //    @PostMapping("")
 //    @Operation(summary = "디데이 수정 API", description = "디데이를 수정합니다.")
