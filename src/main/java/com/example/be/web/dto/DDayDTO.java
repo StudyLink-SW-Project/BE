@@ -16,4 +16,14 @@ public class DDayDTO {
         private String name;
         private LocalDate day;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DDayResponseDto {
+        private Long id;
+        private String name;
+        private LocalDate day;
+    }
 }

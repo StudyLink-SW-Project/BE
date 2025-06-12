@@ -8,10 +8,9 @@ import com.example.be.web.dto.DDayDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/day")
@@ -43,11 +42,10 @@ public class DDayController {
 //        return ApiResponse.onSuccess(commentService.createComment(requestDTO, request));
 //    }
 //
-//    @PostMapping("")
-//    @Operation(summary = "디데이 조회 API", description = "디데이를 조회합니다.")
-//    public ApiResponse<CommonDTO.IsSuccessDTO> createComment(
-//            @RequestBody CommentDTO.CommentRequestDTO requestDTO,
-//            HttpServletRequest request) {
-//        return ApiResponse.onSuccess(commentService.createComment(requestDTO, request));
-//    }
+    @GetMapping("")
+    @Operation(summary = "디데이 조회 API", description = "디데이를 조회합니다.")
+    public ApiResponse<List<DDayDTO.DDayResponseDto>> getDDay(
+            HttpServletRequest request) {
+        return ApiResponse.onSuccess(dayService.getDDays(request));
+    }
 }
