@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import retrofit2.http.POST;
 
 import java.util.List;
 
@@ -32,15 +33,14 @@ public class DDayController {
             HttpServletRequest request, @PathVariable Long id) {
         return ApiResponse.onSuccess(dayService.deleteDDay(request, id));
     }
-//
-//    @PostMapping("")
-//    @Operation(summary = "디데이 수정 API", description = "디데이를 수정합니다.")
-//    public ApiResponse<CommonDTO.IsSuccessDTO> createComment(
-//            @RequestBody CommentDTO.CommentRequestDTO requestDTO,
-//            HttpServletRequest request) {
-//        return ApiResponse.onSuccess(commentService.createComment(requestDTO, request));
-//    }
-//
+
+    @PostMapping("/{id}")
+    @Operation(summary = "디데이 수정 API", description = "디데이를 수정합니다.")
+    public ApiResponse<CommonDTO.IsSuccessDTO> editDDay(
+            HttpServletRequest request, @RequestBody DDayDTO.DDayEditRequestDto requestDto) {
+        return ApiResponse.onSuccess(dayService.editDDay(request, requestDto));
+    }
+
     @GetMapping("")
     @Operation(summary = "디데이 조회 API", description = "디데이를 조회합니다.")
     public ApiResponse<List<DDayDTO.DDayResponseDto>> getDDay(
