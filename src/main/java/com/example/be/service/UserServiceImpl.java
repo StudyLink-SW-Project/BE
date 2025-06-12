@@ -4,7 +4,6 @@ import com.example.be.apiPayload.code.status.ErrorStatus;
 import com.example.be.apiPayload.exception.handler.UserHandler;
 import com.example.be.domain.RefreshToken;
 import com.example.be.domain.User;
-import com.example.be.domain.enums.LoginType;
 import com.example.be.repository.RefreshTokenRepository;
 import com.example.be.repository.UserRepository;
 import com.example.be.web.dto.CommonDTO;
@@ -15,10 +14,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
     private final UserRepository userRepository;
-    private final JwtUtilServiceImpl jwtUtil;
+    private final JwtUtilServiceImpl jwtUtilService;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${jwt.access-token.expiration-time}")
@@ -72,7 +72,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         refreshTokenRepository.deleteByUserId(user.getUserId());
 
         // RefreshToken 재발급
-        String refreshToken = jwtUtil.generateRefreshToken(user.getUserId(), REFRESH_TOKEN_EXPIRATION_TIME);
+        String refreshToken = jwtUtilService.generateRefreshToken(user.getUserId(), REFRESH_TOKEN_EXPIRATION_TIME);
 
         RefreshToken newRefreshToken = RefreshToken.builder()
                 .userId(user.getUserId())
@@ -82,29 +82,14 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         refreshTokenRepository.save(newRefreshToken);
 
         // AccessToken 발급
-        String accessToken = jwtUtil.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
+        String accessToken = jwtUtilService.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
 
-        String origin = httpRequest.getHeader("Origin");
-//        boolean isLocalhost = origin != null && origin.contains("localhost");
-//
-//        // 액세스 토큰 쿠키 설정
-//        if (isLocalhost) {
-//            // 로컬 개발 환경: SameSite=None, Secure=false
-//            response.addHeader("Set-Cookie",
-//                    String.format("accessToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=None",
-//                            accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
-//            response.addHeader("Set-Cookie",
-//                    String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=None",
-//                            refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
-//        } else {
-            // 배포 환경: SameSite=None, Secure=true
             response.addHeader("Set-Cookie",
                     String.format("accessToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
                             accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
             response.addHeader("Set-Cookie",
                     String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
                             refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
-//        }
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
@@ -116,7 +101,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         }
 
         // 토큰에서 사용자 ID 추출
-        String userId = jwtUtil.getUserIdFromToken(accessToken);
+        String userId = jwtUtilService.getUserIdFromToken(accessToken);
 
         // 사용자 정보 조회
         User user = userRepository.findByUserId(UUID.fromString(userId))
@@ -138,27 +123,12 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         if(cookies == null) {
             throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
         }
-
-        // Origin 헤더로 환경 판단
-//        String origin = request.getHeader("Origin");
-//        boolean isSecure = origin == null || !origin.contains("localhost");
-
-        // 쿠키 삭제 - addHeader 방식 사용
-//        if (isSecure) {
-            // 배포 환경
             response.addHeader("Set-Cookie",
                     "accessToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
             response.addHeader("Set-Cookie",
                     "refreshToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
-//        } else {
-//            // 로컬 환경
-//            response.addHeader("Set-Cookie",
-//                    "accessToken=; Path=/; Max-Age=0; HttpOnly; SameSite=None");
-//            response.addHeader("Set-Cookie",
-//                    "refreshToken=; Path=/; Max-Age=0; HttpOnly; SameSite=None");
-//        }
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
-
 }
+
