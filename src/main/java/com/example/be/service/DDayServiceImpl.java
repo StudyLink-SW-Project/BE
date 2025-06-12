@@ -12,7 +12,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,4 +51,16 @@ public class DDayServiceImpl {
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }
 
+    public List<DDayDTO.DDayResponseDto> getDDays(HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+        List<DDay> dDayList = dayRepository.findDDayByUser(user);
+
+        return dDayList.stream()
+                .map(day -> DDayDTO.DDayResponseDto.builder()
+                        .id(day.getId())
+                        .name(day.getName())
+                        .day(day.getDay())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }
