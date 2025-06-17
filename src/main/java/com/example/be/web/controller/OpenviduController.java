@@ -4,11 +4,11 @@ import com.example.be.domain.Room;
 import com.example.be.repository.RoomRepository;
 import com.example.be.web.dto.OpenviduDTO;
 import io.livekit.server.*;
-import livekit.LivekitModels;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -48,10 +48,12 @@ public class OpenviduController {
         return ResponseEntity.ok(Map.of("token", token.toJwt()));
     }
 
-        @PostMapping(value = "/livekit/webhook", consumes = "application/webhook+json")
-        public ResponseEntity<String> receiveWebhook(@RequestHeader("Authorization") String authHeader, @RequestBody String body) {
-            WebhookReceiver webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
-            try {
+
+    @Transactional
+    @PostMapping(value = "/livekit/webhook", consumes = "application/webhook+json")
+    public ResponseEntity<String> receiveWebhook(@RequestHeader("Authorization") String authHeader, @RequestBody String body) {
+        WebhookReceiver webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
+        try {
                 WebhookEvent event = webhookReceiver.receive(body, authHeader);
                 String roomName = event.getRoom().getName();
                 int roomParticipantCount = event.getRoom().getNumParticipants();
@@ -72,7 +74,7 @@ public class OpenviduController {
                                     .title(roomName)
                                     .createDate(createAt)
                                     .participantCount(0)
-                                    .maxParticipants(10) // 기본값 설정
+                                    .maxParticipants(10)
                                     .build();
                             roomRepository.save(newRoom);
                         }
@@ -94,20 +96,20 @@ public class OpenviduController {
                     }
                     case "participant_left" -> {
                         Room room = roomRepository.findByTitle(roomName);
-                        if (room != null && roomParticipantCount > 0) {
-                            room.setParticipantCount(roomParticipantCount);
-                            roomRepository.save(room);
-                            log.info("Participant left now. Current count: {}", roomParticipantCount);
+                        if (room != null) {
+                            if (roomParticipantCount == 0) {
+                                roomRepository.delete(room);
+                                log.info("Room deleted (LiveKit reported 0): {}", roomName);
+                            } else {
+                                room.setParticipantCount(roomParticipantCount);
+                                roomRepository.save(room);
+                                log.info("Participant left. Room: {}, Current count: {}", roomName, roomParticipantCount);
                             }
-                        else if (room != null && roomParticipantCount == 0) {
-                            roomRepository.delete(room);
-                            log.info("Room deleted: {}", roomName);
                         }
                     }
                 }
             } catch (Exception e) {
                 log.info("Error validating webhook event: {}", e.getMessage());
-                e.printStackTrace();
                 return ResponseEntity.badRequest().body("Invalid webhook");
             }
 
