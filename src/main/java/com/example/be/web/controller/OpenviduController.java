@@ -4,7 +4,9 @@ import com.example.be.domain.Room;
 import com.example.be.repository.RoomRepository;
 import com.example.be.web.dto.OpenviduDTO;
 import io.livekit.server.*;
+import livekit.LivekitModels;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import java.util.Map;
 
 import livekit.LivekitWebhook.WebhookEvent;
 
+@Slf4j
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/video")
@@ -51,10 +54,11 @@ public class OpenviduController {
             try {
                 WebhookEvent event = webhookReceiver.receive(body, authHeader);
                 String roomName = event.getRoom().getName();
+                int roomParticipantCount = event.getRoom().getNumParticipants();
                 long createAt = event.getRoom().getCreationTime();
 
-                System.out.println("LiveKit Webhook Event: " + event.getEvent());
-                System.out.println("Room Name: " + roomName);
+                log.info("LiveKit Webhook Event: {}", event.getEvent());
+                log.info("Room Name:{}", roomName);
 
                 // 이벤트 타입에 따른 처리 - event.getEvent() 사용
                 String eventType = event.getEvent();
@@ -67,39 +71,35 @@ public class OpenviduController {
                             Room newRoom = Room.builder()
                                     .title(roomName)
                                     .createDate(createAt)
-                                    .participantCount(0)
+                                    .participantCount(roomParticipantCount)
                                     .maxParticipants(10) // 기본값 설정
                                     .build();
                             roomRepository.save(newRoom);
-                            System.out.println("Room created: " + roomName);
                         }
                     }
                     case "participant_joined" -> {
                         Room room = roomRepository.findByTitle(roomName);
                         if (room != null) {
-                            room.setParticipantCount(room.getParticipantCount() + 1);
+                            room.setParticipantCount(roomParticipantCount);
                             roomRepository.save(room);
-                            System.out.println("Participant joined. Current count: " + room.getParticipantCount());
+                            log.info("Participant joined. Current count: {}", roomParticipantCount);
                         }
                     }
                     case "participant_left" -> {
                         Room room = roomRepository.findByTitle(roomName);
-                        if (room != null) {
-                            room.setParticipantCount(room.getParticipantCount() - 1);
+                        if (room != null && roomParticipantCount > 0) {
+                            room.setParticipantCount(roomParticipantCount);
                             roomRepository.save(room);
-                        }
-                        if (room != null && room.getParticipantCount() > 0) {
-                            roomRepository.save(room);
-                            System.out.println("Participant left. Current count: " + room.getParticipantCount());
+                            log.info("Participant left now. Current count: {}", roomParticipantCount);
                             }
-                        else if (room != null && room.getParticipantCount() == 0) {
+                        else if (room != null && roomParticipantCount == 0) {
                             roomRepository.delete(room);
-                            System.out.println("Room deleted: " + roomName);
+                            log.info("Room deleted: {}", roomName);
                         }
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Error validating webhook event: " + e.getMessage());
+                log.info("Error validating webhook event: {}", e.getMessage());
                 e.printStackTrace();
                 return ResponseEntity.badRequest().body("Invalid webhook");
             }
