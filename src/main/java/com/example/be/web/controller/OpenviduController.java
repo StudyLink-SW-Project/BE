@@ -71,7 +71,7 @@ public class OpenviduController {
                             Room newRoom = Room.builder()
                                     .title(roomName)
                                     .createDate(createAt)
-                                    .participantCount(1)
+                                    .participantCount(0)
                                     .maxParticipants(10) // 기본값 설정
                                     .build();
                             roomRepository.save(newRoom);
@@ -80,9 +80,16 @@ public class OpenviduController {
                     case "participant_joined" -> {
                         Room room = roomRepository.findByTitle(roomName);
                         if (room != null) {
-                            room.setParticipantCount(roomParticipantCount);
-                            roomRepository.save(room);
-                            log.info("Participant joined. Current count: {}", roomParticipantCount);
+                            if (roomParticipantCount == 0) {
+                                room.setParticipantCount(1);
+                                roomRepository.save(room);
+                                log.info("Participant joined. Current count: {}", room.getParticipantCount());
+                            }
+                            else {
+                                room.setParticipantCount(roomParticipantCount);
+                                roomRepository.save(room);
+                                log.info("Participant joined. Current count: {}", roomParticipantCount);
+                            }
                         }
                     }
                     case "participant_left" -> {
