@@ -4,6 +4,8 @@ import com.example.be.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,4 +22,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("update User u Set u.todayStudyTime = 0")
     void updateTodayStudyTime();
+
+    @Query("SELECT u.resolve FROM User u WHERE u.id = :userId")
+    String findResolveByUserId(@Param("userId") Long userId);
+
 }
