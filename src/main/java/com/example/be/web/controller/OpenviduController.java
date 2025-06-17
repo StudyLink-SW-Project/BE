@@ -71,7 +71,7 @@ public class OpenviduController {
                             Room newRoom = Room.builder()
                                     .title(roomName)
                                     .createDate(createAt)
-                                    .participantCount(roomParticipantCount)
+                                    .participantCount(1)
                                     .maxParticipants(10) // 기본값 설정
                                     .build();
                             roomRepository.save(newRoom);
