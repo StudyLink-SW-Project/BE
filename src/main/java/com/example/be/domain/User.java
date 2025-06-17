@@ -39,6 +39,8 @@ public class User {
 
     private LocalDateTime createDate;
 
+    private String resolve;
+
     @Column(columnDefinition = "int default 0")
     private int todayStudyTime;
 
@@ -47,6 +49,7 @@ public class User {
 
     @Column(columnDefinition = "int default 0")
     private int goalStudyTime;
+
 
     //Relationships
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

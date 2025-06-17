@@ -36,6 +36,20 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
     @Value("${jwt.refresh-token.expiration-time}")
     private long REFRESH_TOKEN_EXPIRATION_TIME; // 리프레쉬 토큰 유효기간
 
+
+    private User getUserFromRequest(HttpServletRequest request) {
+        try {
+            String accessToken = jwtUtilService.extractTokenFromCookie(request, "accessToken");
+            if (accessToken != null) {
+                String userId = jwtUtilService.getUserIdFromToken(accessToken);
+                return userRepository.findByUserId(UUID.fromString(userId)).orElse(null);
+            }
+        } catch (Exception e) {
+            throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
+        }
+        return null;
+    }
+
     public CommonDTO.IsSuccessDTO signUp(UserDTO.SingUpRequestDto request) {
 
         if (userRepository.existsByEmail(request.getEmail()))
@@ -129,6 +143,26 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
                     "refreshToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
+    }
+
+    public CommonDTO.IsSuccessDTO createResolve(HttpServletRequest request, UserDTO.resolveDto resolve) {
+        User user = getUserFromRequest(request);
+
+        user.setResolve(resolve.getResolve());
+        userRepository.save(user);
+
+        return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
+    }
+
+    public UserDTO.resolveDto getResolve(HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+
+        String resolve = userRepository.findResolveByUserId(user.getId());
+        if(resolve == null) {
+            resolve = "";
+        }
+
+        return UserDTO.resolveDto.builder().resolve(resolve).build();
     }
 }
 
