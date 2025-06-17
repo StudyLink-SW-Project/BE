@@ -48,4 +48,13 @@ public class UserDTO {
         private String totalStudyTime;
         private String goalStudyTime;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class resolveDto {
+        private String resolve;
+    }
+
 }
