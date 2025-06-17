@@ -4,6 +4,7 @@ import com.example.be.apiPayload.ApiResponse;
 import com.example.be.service.JwtUtilServiceImpl;
 import com.example.be.service.UserServiceImpl;
 import com.example.be.web.dto.CommonDTO;
+import com.example.be.web.dto.DDayDTO;
 import com.example.be.web.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,5 +47,16 @@ public class UserController {
         return ApiResponse.onSuccess(userService.logout(response, request));
     }
 
+    @PostMapping("/resolve")
+    @Operation(summary = "각오 생성 및 수정 API", description = "각오를 생성합니다.")
+    public ApiResponse<CommonDTO.IsSuccessDTO> createResolve(
+            HttpServletRequest request, @RequestBody UserDTO.resolveDto resolve) {
+        return ApiResponse.onSuccess(userService.createResolve(request, resolve));
+    }
 
+    @GetMapping("/resolve")
+    @Operation(summary = "각오 조회 API", description = "각오를 조회합니다.")
+    public ApiResponse<UserDTO.resolveDto> getResolve(HttpServletRequest request) {
+        return ApiResponse.onSuccess(userService.getResolve(request));
+    }
 }
