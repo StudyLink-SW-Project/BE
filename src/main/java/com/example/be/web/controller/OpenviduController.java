@@ -56,7 +56,6 @@ public class OpenviduController {
         try {
                 WebhookEvent event = webhookReceiver.receive(body, authHeader);
                 String roomName = event.getRoom().getName();
-                int roomParticipantCount = event.getRoom().getNumParticipants();
                 long createAt = event.getRoom().getCreationTime();
 
                 log.info("LiveKit Webhook Event: {}", event.getEvent());
@@ -82,28 +81,21 @@ public class OpenviduController {
                     case "participant_joined" -> {
                         Room room = roomRepository.findByTitle(roomName);
                         if (room != null) {
-                            if (roomParticipantCount == 0) {
-                                room.setParticipantCount(1);
+                                room.setParticipantCount(room.getParticipantCount()+1);
                                 roomRepository.save(room);
                                 log.info("Participant joined. Current count: {}", room.getParticipantCount());
-                            }
-                            else {
-                                room.setParticipantCount(roomParticipantCount);
-                                roomRepository.save(room);
-                                log.info("Participant joined. Current count: {}", roomParticipantCount);
-                            }
                         }
                     }
                     case "participant_left" -> {
                         Room room = roomRepository.findByTitle(roomName);
                         if (room != null) {
-                            if (roomParticipantCount == 0) {
+                            if (room.getParticipantCount() <= 1) {
                                 roomRepository.delete(room);
                                 log.info("Room deleted (LiveKit reported 0): {}", roomName);
                             } else {
-                                room.setParticipantCount(roomParticipantCount);
+                                room.setParticipantCount(room.getParticipantCount()-1);
                                 roomRepository.save(room);
-                                log.info("Participant left. Room: {}, Current count: {}", roomName, roomParticipantCount);
+                                log.info("Participant left. Room: {}, Current count: {}", roomName, room.getParticipantCount());
                             }
                         }
                     }
