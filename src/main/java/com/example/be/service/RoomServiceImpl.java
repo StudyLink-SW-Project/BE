@@ -48,6 +48,7 @@ public class RoomServiceImpl {
             throw new RoomHandler(ErrorStatus._NOT_FOUND_ROOM);
         }
         room.setPassword(request.getPassword());
+        room.setDescription(request.getRoomDescription());
         room.setRoomImage(request.getRoomImage());
         roomRepository.save(room);
 
