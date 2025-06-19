@@ -23,7 +23,7 @@ public class RoomController {
     }
 
     @PostMapping("/set")
-    @Operation(summary = "비밀번호 및 이미지 저장", description = "생성된 방의 이미지번호와 비밀번호를 설정합니다.")
+    @Operation(summary = "방소개, 비밀번호 및 이미지 저장", description = "생성된 방의 소개글, 이미지번호와 비밀번호를 설정합니다.")
     public ApiResponse<RoomDTO.RoomDto> setRoom(@RequestBody RoomDTO.RoomSetRequestDto request) {
 
         return ApiResponse.onSuccess(roomService.setRoom(request));

@@ -33,6 +33,7 @@ public class RoomServiceImpl {
     private RoomDTO.RoomDto convertToDto(Room room) {
         return RoomDTO.RoomDto.builder()
                 .roomName(room.getTitle())
+                .roomDescription(room.getDescription())
                 .password(room.getPassword())
                 .roomImage(room.getRoomImage())
                 .creationTime(room.getCreateDate())
@@ -52,6 +53,7 @@ public class RoomServiceImpl {
 
         return RoomDTO.RoomDto.builder()
                 .roomName(room.getTitle())
+                .roomDescription(room.getDescription())
                 .roomImage(room.getRoomImage())
                 .password(room.getPassword())
                 .participantsCounts(room.getParticipantCount())
