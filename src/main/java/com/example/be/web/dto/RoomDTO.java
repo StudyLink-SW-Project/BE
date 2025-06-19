@@ -15,6 +15,7 @@ public class RoomDTO {
     @AllArgsConstructor
     public static class RoomDto {
         private String roomName;
+        private String roomDescription;
         private String password;
         private String roomImage;
         private long creationTime;
@@ -22,15 +23,6 @@ public class RoomDTO {
         private int maxParticipants;
     }
 
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CreateRoomRequestDto {
-        private String roomName;
-        private Integer maxParticipants;
-        private String metadata;
-    }
 
     @Builder
     @Getter
@@ -47,6 +39,7 @@ public class RoomDTO {
     @AllArgsConstructor
     public static class RoomSetRequestDto {
         private String roomName;
+        private String roomDescription;
         private String password;
         private String roomImage;
     }

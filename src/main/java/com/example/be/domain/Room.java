@@ -24,7 +24,10 @@ public class Room {
     @Column(nullable = false)
     private String title;
 
+    private String description;
+
     private String password;
+
     private String roomImage;
 
     @Builder.Default
