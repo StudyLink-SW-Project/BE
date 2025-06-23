@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Service
@@ -50,7 +52,7 @@ public class CommentServiceImpl {
 
         Comment comment = Comment.builder()
                 .comment(requestDTO.getComment())
-                .createDate(LocalDateTime.now())
+                .createDate(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime())
                 .user(user)
                 .post(post)
                 .build();
