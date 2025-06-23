@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -56,7 +58,7 @@ public class PostServiceImpl {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .user(user)
-                .createDate(LocalDateTime.now())
+                .createDate(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime())
                 .build();
 
         postRepository.save(post);
