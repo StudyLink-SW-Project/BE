@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -61,7 +63,7 @@ public class CommentLikeServiceImpl {
             CommentLike commentLike = CommentLike.builder()
                     .user(user)
                     .comment(comment)
-                    .createDate(LocalDateTime.now())
+                    .createDate(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime())
                     .build();
             commentLikeRepository.save(commentLike);
             isLiked = true;
