@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final JwtUtilServiceImpl jwtUtilService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.access-token.expiration-time}")
     private long ACCESS_TOKEN_EXPIRATION_TIME; // 액세스 토큰 유효기간
@@ -59,7 +61,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
 
         User user = User.builder()
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .userId(UUID.randomUUID())
                 .provider("general")
@@ -82,7 +84,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()
                 -> new UserHandler(ErrorStatus._NOT_FOUND_USER));
 
-        if (!user.getPassword().equals(request.getPassword()))
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             throw new UserHandler(ErrorStatus._NOT_CORRECT_PASSWORD);
 
         refreshTokenRepository.deleteByUserId(user.getUserId());
