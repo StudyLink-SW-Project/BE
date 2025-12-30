@@ -35,3 +35,14 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Local configuration
+application-local.yml
+
+# Node modules
+node_modules/
+package.json
+package-lock.json
+
+# Claude settings
+.claude/
