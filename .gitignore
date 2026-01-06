@@ -46,3 +46,6 @@ package-lock.json
 
 # Claude settings
 .claude/
+
+# Pem key
+*.pem
