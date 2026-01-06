@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -26,11 +26,25 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
+      - name: Create SSH key file
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
       - name: Deploy to EC2
         run: |
-          sudo cp build/libs/*.jar /home/ubuntu/app.jar
-          sudo systemctl restart studylink
-          sudo systemctl status studylink
+          scp -i private_key.pem -o StrictHostKeyChecking=no \
+            build/libs/*.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/app.jar
+
+          ssh -i private_key.pem -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            sudo systemctl restart studylink
+            sudo systemctl status studylink
+          EOF
+
+      - name: Clean up
+        if: always()
+        run: rm -f private_key.pem
 
       - name: Send deployment notification
         if: success()
