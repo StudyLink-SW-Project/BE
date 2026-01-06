@@ -27,7 +27,7 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인 API")
-    public ApiResponse<CommonDTO.IsSuccessDTO> login(@RequestBody UserDTO.LoginRequestDto dtoRequest, HttpServletResponse response, HttpServletRequest request) {
+    public ApiResponse<UserDTO.UserResponseDto> login(@RequestBody UserDTO.LoginRequestDto dtoRequest, HttpServletResponse response, HttpServletRequest request) {
         return ApiResponse.onSuccess(userService.login(dtoRequest, response, request));
     }
 
