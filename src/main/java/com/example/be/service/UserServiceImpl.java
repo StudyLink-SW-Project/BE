@@ -77,7 +77,7 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
 
     }
 
-    public CommonDTO.IsSuccessDTO login(UserDTO.LoginRequestDto request, HttpServletResponse response, HttpServletRequest httpRequest) {
+    public UserDTO.UserResponseDto login(UserDTO.LoginRequestDto request, HttpServletResponse response, HttpServletRequest httpRequest) {
         //db에 아이디랑 비밀번호가 일치하는지 조회
         // 일치한다면 토큰 발급 후 response
 
@@ -109,7 +109,13 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
                     String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
                             refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
 
-        return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
+        // 사용자 정보 반환
+        return UserDTO.UserResponseDto.builder()
+                .userId(user.getId())
+                .userName(user.getName())
+                .email(user.getEmail())
+                .loginType(user.getProvider())
+                .build();
     }
 
     public UserDTO.UserResponseDto getUserInfo(String accessToken) {
