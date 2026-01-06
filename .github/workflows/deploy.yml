@@ -33,27 +33,28 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          max_retries=3
-          retry_count=0
-
-          while [ $retry_count -lt $max_retries ]; do
-            if scp -i private_key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
-              build/libs/*.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/app.jar; then
-              break
-            fi
-            retry_count=$((retry_count + 1))
-            echo "SCP failed. Retrying ($retry_count/$max_retries)..."
-            sleep 5
-          done
-
-          if [ $retry_count -eq $max_retries ]; then
-            echo "SCP failed after $max_retries attempts"
-            exit 1
-          fi
-
+          # EC2에서 기존 파일 정리
           ssh -i private_key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            sudo systemctl restart studylink
+            # app.jar가 디렉토리면 삭제, 파일이면 백업
+            if [ -d /home/ubuntu/app.jar ]; then
+              sudo rm -rf /home/ubuntu/app.jar
+            elif [ -f /home/ubuntu/app.jar ]; then
+              sudo mv /home/ubuntu/app.jar /home/ubuntu/app.jar.backup
+            fi
+          EOF
+
+          # JAR 파일 전송
+          scp -i private_key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
+            build/libs/*.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/app-new.jar
+
+          # 서비스 중지 후 파일 교체 및 재시작
+          ssh -i private_key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            sudo systemctl stop studylink
+            sudo mv /home/ubuntu/app-new.jar /home/ubuntu/app.jar
+            sudo chown ubuntu:ubuntu /home/ubuntu/app.jar
+            sudo systemctl start studylink
             sudo systemctl status studylink
           EOF
 
