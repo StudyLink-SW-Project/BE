@@ -2,9 +2,9 @@ package com.example.be.service;
 
 import com.example.be.apiPayload.code.status.ErrorStatus;
 import com.example.be.apiPayload.exception.handler.UserHandler;
-import com.example.be.domain.RefreshToken;
+import com.example.be.domain.redis.RedisRefreshToken;
 import com.example.be.domain.User;
-import com.example.be.repository.RefreshTokenRepository;
+import com.example.be.repository.redis.RedisRefreshTokenRepository;
 import com.example.be.repository.UserRepository;
 import com.example.be.web.dto.CommonDTO;
 import com.example.be.web.dto.UserDTO;
@@ -31,7 +31,7 @@ import java.util.UUID;
 public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final JwtUtilServiceImpl jwtUtilService;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.access-token.expiration-time}")
@@ -87,17 +87,18 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             throw new UserHandler(ErrorStatus._NOT_CORRECT_PASSWORD);
 
-        refreshTokenRepository.deleteByUserId(user.getUserId());
+        redisRefreshTokenRepository.deleteById(user.getUserId().toString());
 
         // RefreshToken 재발급
         String refreshToken = jwtUtilService.generateRefreshToken(user.getUserId(), REFRESH_TOKEN_EXPIRATION_TIME);
 
-        RefreshToken newRefreshToken = RefreshToken.builder()
-                .userId(user.getUserId())
-                .token(refreshToken)
-                .build();
+        RedisRefreshToken newRefreshToken = RedisRefreshToken.of(
+                user.getUserId(),
+                refreshToken,
+                REFRESH_TOKEN_EXPIRATION_TIME
+        );
 
-        refreshTokenRepository.save(newRefreshToken);
+        redisRefreshTokenRepository.save(newRefreshToken);
 
         // AccessToken 발급
         String accessToken = jwtUtilService.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);

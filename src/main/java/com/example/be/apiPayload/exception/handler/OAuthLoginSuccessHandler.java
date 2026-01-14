@@ -4,9 +4,9 @@ import com.example.be.config.provider.GoogleUserInfo;
 import com.example.be.config.provider.KakaoUserInfo;
 import com.example.be.config.provider.NaverUserInfo;
 import com.example.be.config.provider.OAuth2UserInfo;
-import com.example.be.domain.RefreshToken;
+import com.example.be.domain.redis.RedisRefreshToken;
 import com.example.be.domain.User;
-import com.example.be.repository.RefreshTokenRepository;
+import com.example.be.repository.redis.RedisRefreshTokenRepository;
 import com.example.be.repository.UserRepository;
 import com.example.be.service.JwtUtilServiceImpl;
 import jakarta.servlet.http.Cookie;
@@ -44,7 +44,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
     private final JwtUtilServiceImpl jwtUtil;
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -91,7 +91,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         } else {
             // 기존 유저인 경우
             log.info("기존 유저입니다.");
-            refreshTokenRepository.deleteByUserId(existUser.getUserId());
+            redisRefreshTokenRepository.deleteById(existUser.getUserId().toString());
             user = existUser;
         }
 
@@ -102,12 +102,13 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // 리프레쉬 토큰 발급 후 저장
         String refreshToken = jwtUtil.generateRefreshToken(user.getUserId(), REFRESH_TOKEN_EXPIRATION_TIME);
 
-        RefreshToken newRefreshToken = RefreshToken.builder()
-                .userId(user.getUserId())
-                .token(refreshToken)
-                .build();
+        RedisRefreshToken newRefreshToken = RedisRefreshToken.of(
+                user.getUserId(),
+                refreshToken,
+                REFRESH_TOKEN_EXPIRATION_TIME
+        );
 
-        refreshTokenRepository.save(newRefreshToken);
+        redisRefreshTokenRepository.save(newRefreshToken);
 
         // 액세스 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);

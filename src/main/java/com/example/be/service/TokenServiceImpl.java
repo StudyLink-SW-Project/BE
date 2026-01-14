@@ -3,8 +3,8 @@ package com.example.be.service;
 
 import com.example.be.apiPayload.exception.tokenException.TokenErrorResult;
 import com.example.be.apiPayload.exception.tokenException.TokenException;
-import com.example.be.domain.RefreshToken;
-import com.example.be.repository.RefreshTokenRepository;
+import com.example.be.domain.redis.RedisRefreshToken;
+import com.example.be.repository.redis.RedisRefreshTokenRepository;
 import com.example.be.web.dto.TokenResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +19,7 @@ public class TokenServiceImpl{
     @Value("${jwt.access-token.expiration-time}")
     private long ACCESS_TOKEN_EXPIRATION_TIME; // 액세스 토큰 유효기간
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
     private final JwtUtilServiceImpl jwtUtil;
 
 
@@ -27,7 +27,11 @@ public class TokenServiceImpl{
     public TokenResponseDTO reissueAccessToken(String authorizationHeader) {
         String refreshToken = jwtUtil.getTokenFromHeader(authorizationHeader);
         String userId = jwtUtil.getUserIdFromToken(refreshToken);
-        RefreshToken existRefreshToken = refreshTokenRepository.findByUserId(UUID.fromString(userId));
+
+        // Redis에서 RefreshToken 조회
+        RedisRefreshToken existRefreshToken = redisRefreshTokenRepository.findById(userId)
+                .orElseThrow(() -> new TokenException(TokenErrorResult.INVALID_REFRESH_TOKEN));
+
         String accessToken = null;
 
         if (!existRefreshToken.getToken().equals(refreshToken) || jwtUtil.isTokenExpired(refreshToken)) {
