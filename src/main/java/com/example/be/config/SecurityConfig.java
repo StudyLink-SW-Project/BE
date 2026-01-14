@@ -66,17 +66,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                // Swagger UI
-                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-
-                                // 인증 불필요 엔드포인트
-                                .requestMatchers("/user/login", "/user/signup").permitAll()
-                                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-                                .requestMatchers("/api/v1/reissue/**").permitAll()
-                                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-
-                                // 나머지는 인증 필요
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth ->
                         oauth
