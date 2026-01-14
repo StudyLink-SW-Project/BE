@@ -119,7 +119,7 @@ public class JwtUtilServiceImpl {
                 }
             }
         }
-        throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
+        return null;
     }
 
 }
