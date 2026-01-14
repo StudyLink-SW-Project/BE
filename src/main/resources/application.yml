@@ -80,6 +80,7 @@ management:
 
 server:
   port: 6080
+  forward-headers-strategy: native
 
 livekit:
   api:
