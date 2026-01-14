@@ -104,10 +104,10 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
         String accessToken = jwtUtilService.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
 
             response.addHeader("Set-Cookie",
-                    String.format("accessToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                    String.format("accessToken=%s; Path=/; Domain=.studylink.store; Max-Age=%d; HttpOnly; Secure; SameSite=None",
                             accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
             response.addHeader("Set-Cookie",
-                    String.format("refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                    String.format("refreshToken=%s; Path=/; Domain=.studylink.store; Max-Age=%d; HttpOnly; Secure; SameSite=None",
                             refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
 
         // 사용자 정보 반환
@@ -149,9 +149,9 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
             throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
         }
             response.addHeader("Set-Cookie",
-                    "accessToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
+                    "accessToken=; Path=/; Domain=.studylink.store; Max-Age=0; HttpOnly; Secure; SameSite=None");
             response.addHeader("Set-Cookie",
-                    "refreshToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
+                    "refreshToken=; Path=/; Domain=.studylink.store; Max-Age=0; HttpOnly; Secure; SameSite=None");
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }

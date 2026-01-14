@@ -116,8 +116,9 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // 쿠키에 액세스 토큰 추가
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);  // JavaScript에서 접근 불가능하게 설정
-        accessTokenCookie.setSecure(true);    // HTTPS에서만 전송되도록 설정, https 적용 후 true로 설정 예정
+        accessTokenCookie.setSecure(true);    // HTTPS에서만 전송되도록 설정
         accessTokenCookie.setPath("/");       // 모든 경로에서 쿠키 접근 가능
+        accessTokenCookie.setDomain(".studylink.store");  // 서브도메인 간 쿠키 공유
         accessTokenCookie.setMaxAge((int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000));  // 밀리초를 초로 변환
         response.addCookie(accessTokenCookie);
 
@@ -127,6 +128,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setDomain(".studylink.store");  // 서브도메인 간 쿠키 공유
         refreshTokenCookie.setMaxAge((int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000));
         response.addCookie(refreshTokenCookie);
         response.sendRedirect(REDIRECT_URI+provider);
