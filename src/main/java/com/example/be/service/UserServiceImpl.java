@@ -149,9 +149,9 @@ public class UserServiceImpl extends SimpleUrlAuthenticationSuccessHandler {
             throw new UserHandler(ErrorStatus._NOT_FOUND_COOKIE);
         }
             response.addHeader("Set-Cookie",
-                    "accessToken=; Path=/; Domain=.studylink.store; Max-Age=0; HttpOnly; Secure; SameSite=None");
+                    "accessToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
             response.addHeader("Set-Cookie",
-                    "refreshToken=; Path=/; Domain=.studylink.store; Max-Age=0; HttpOnly; Secure; SameSite=None");
+                    "refreshToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
 
         return CommonDTO.IsSuccessDTO.builder().isSuccess(true).build();
     }

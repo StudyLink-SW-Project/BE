@@ -9,7 +9,6 @@ import com.example.be.domain.User;
 import com.example.be.repository.redis.RedisRefreshTokenRepository;
 import com.example.be.repository.UserRepository;
 import com.example.be.service.JwtUtilServiceImpl;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -113,25 +111,15 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // 액세스 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
 
-        // 쿠키에 액세스 토큰 추가
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);  // JavaScript에서 접근 불가능하게 설정
-        accessTokenCookie.setSecure(true);    // HTTPS에서만 전송되도록 설정
-        accessTokenCookie.setPath("/");       // 모든 경로에서 쿠키 접근 가능
-        accessTokenCookie.setDomain(".studylink.store");  // 서브도메인 간 쿠키 공유
-        accessTokenCookie.setMaxAge((int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000));  // 밀리초를 초로 변환
-        response.addCookie(accessTokenCookie);
+        // Set-Cookie 헤더로 쿠키 설정 (Domain, SameSite 포함)
+        response.addHeader("Set-Cookie",
+                String.format("accessToken=%s; Path=/; Domain=.studylink.store; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                        accessToken, (int) (ACCESS_TOKEN_EXPIRATION_TIME / 1000)));
+        response.addHeader("Set-Cookie",
+                String.format("refreshToken=%s; Path=/; Domain=.studylink.store; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                        refreshToken, (int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000)));
 
-
-        // 쿠키에 리프레시 토큰 추가
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setDomain(".studylink.store");  // 서브도메인 간 쿠키 공유
-        refreshTokenCookie.setMaxAge((int) (REFRESH_TOKEN_EXPIRATION_TIME / 1000));
-        response.addCookie(refreshTokenCookie);
-        response.sendRedirect(REDIRECT_URI+provider);
+        response.sendRedirect(REDIRECT_URI + provider);
 
 //        // 이름, 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
 //        String encodedName = URLEncoder.encode(name, "UTF-8");

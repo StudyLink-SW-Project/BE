@@ -6,9 +6,9 @@ import com.example.be.apiPayload.exception.tokenException.TokenException;
 import com.example.be.domain.redis.RedisRefreshToken;
 import com.example.be.repository.redis.RedisRefreshTokenRepository;
 import com.example.be.web.dto.TokenResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -24,8 +24,12 @@ public class TokenServiceImpl{
 
 
     //액세스 토큰 재발급
-    public TokenResponseDTO reissueAccessToken(String authorizationHeader) {
-        String refreshToken = jwtUtil.getTokenFromHeader(authorizationHeader);
+    public TokenResponseDTO reissueAccessToken(HttpServletRequest request) {
+        // 쿠키에서 refreshToken 추출
+        String refreshToken = jwtUtil.extractTokenFromCookie(request, "refreshToken");
+        if (refreshToken == null) {
+            throw new TokenException(TokenErrorResult.INVALID_REFRESH_TOKEN);
+        }
         String userId = jwtUtil.getUserIdFromToken(refreshToken);
 
         // Redis에서 RefreshToken 조회
