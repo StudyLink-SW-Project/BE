@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -70,27 +71,40 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         String name = oAuth2UserInfo.getName();
         String email = oAuth2UserInfo.getEmail();
 
+        // 1. providerId로 기존 유저 찾기
         User existUser = userRepository.findByProviderId(providerId);
         User user;
 
-        if (existUser == null) {
-            // 신규 유저인 경우
-            log.info("신규 유저입니다. 등록을 진행합니다.");
-
-            user = User.builder()
-                    .userId(UUID.randomUUID())
-                    .email(email)
-                    .name(name)
-                    .createDate(LocalDateTime.now())
-                    .provider(provider)
-                    .providerId(providerId)
-                    .build();
-            userRepository.save(user);
-        } else {
-            // 기존 유저인 경우
-            log.info("기존 유저입니다.");
+        if (existUser != null) {
+            // providerId로 찾은 기존 유저
+            log.info("기존 유저입니다. (providerId 일치)");
             redisRefreshTokenRepository.deleteById(existUser.getUserId().toString());
             user = existUser;
+        } else {
+            // 2. providerId로 못 찾으면 email로 찾기
+            Optional<User> userByEmail = userRepository.findByEmail(email);
+
+            if (userByEmail.isPresent()) {
+                // 같은 이메일로 다른 방식으로 가입한 유저 - 소셜 계정 연동
+                log.info("기존 유저입니다. (email 일치 - 소셜 계정 연동)");
+                user = userByEmail.get();
+                user.setProvider(provider);
+                user.setProviderId(providerId);
+                userRepository.save(user);
+                redisRefreshTokenRepository.deleteById(user.getUserId().toString());
+            } else {
+                // 신규 유저
+                log.info("신규 유저입니다. 등록을 진행합니다.");
+                user = User.builder()
+                        .userId(UUID.randomUUID())
+                        .email(email)
+                        .name(name)
+                        .createDate(LocalDateTime.now())
+                        .provider(provider)
+                        .providerId(providerId)
+                        .build();
+                userRepository.save(user);
+            }
         }
 
         log.info("유저 이름 : {}", name);
