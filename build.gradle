@@ -64,6 +64,8 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // 테스트용 H2 인메모리 DB
+    testImplementation 'com.h2database:h2'
 }
 
 test {

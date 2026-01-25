@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;NON_KEYWORDS=USER
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        globally_quoted_identifiers: true
+
+  # Redis 비활성화 (테스트에서는 Mock 사용)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: test-secret-key-for-testing-purposes-only-1234567890-abcdefghij
+  access-token:
+    expiration-time: 3600000
+  refresh-token:
+    expiration-time: 604800000
+
+livekit:
+  api:
+    host: http://localhost:7880
+    key: test-key
+    secret: test-secret
