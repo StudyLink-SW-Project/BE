@@ -79,7 +79,8 @@ public class OpenviduController {
                         }
                     }
                     case "participant_joined" -> {
-                        Room room = roomRepository.findByTitle(roomName);
+                        // 비관적 락을 사용하여 동시성 제어
+                        Room room = roomRepository.findByTitleWithLock(roomName);
                         if (room != null) {
                                 room.setParticipantCount(room.getParticipantCount()+1);
                                 roomRepository.save(room);
@@ -87,7 +88,8 @@ public class OpenviduController {
                         }
                     }
                     case "participant_left" -> {
-                        Room room = roomRepository.findByTitle(roomName);
+                        // 비관적 락을 사용하여 동시성 제어
+                        Room room = roomRepository.findByTitleWithLock(roomName);
                         if (room != null) {
                             if (room.getParticipantCount() <= 1) {
                                 roomRepository.delete(room);
